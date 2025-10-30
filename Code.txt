@@ -1,0 +1,32 @@
+flask db init
+flask db migrate -m "simplified medicine table with demand trend"
+flask db upgrade
+
+flask db init → sets up the migrations folder.
+
+flask db migrate → scans your models.py and generates a migration file.
+
+flask db upgrade → applies that migration to your MySQL DB (creates the table).
+
+
+--------------------------
+
+CREATE DATABASE medicines_db;
+
+USE medicines_db;
+
+CREATE TABLE medicine (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    formula VARCHAR(100) NOT NULL,
+    medicine_id VARCHAR(50) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    stock INT NOT NULL DEFAULT 0,
+    forecast INT NOT NULL DEFAULT 0,
+    stock_status VARCHAR(50) NOT NULL DEFAULT 'Unknown'
+);
+
+SELECT * FROM alembic_version;
+
+USE medicines_db;
+
+SELECT * FROM medicine;
