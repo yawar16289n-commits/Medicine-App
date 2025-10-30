@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_BASE } from "../config";
+import UserTable from "../components/UserTable";
+import UserForm from "../components/UserForm";
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
@@ -41,8 +43,7 @@ export default function UserManagement() {
   }, []);
 
   // Handle form submit (create or update)
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleFormSubmit = async () => {
     setError("");
 
     try {
@@ -63,9 +64,7 @@ export default function UserManagement() {
       }
       
       // Reset form and refresh users
-      setFormData({ username: "", password: "", role: "user" });
-      setShowForm(false);
-      setEditingUser(null);
+      resetForm();
       fetchUsers();
     } catch (err) {
       setError(err.response?.data?.error || "Operation failed");
@@ -99,17 +98,13 @@ export default function UserManagement() {
     }
   };
 
-  // Cancel form
-  const cancelForm = () => {
+  // Reset form
+  const resetForm = () => {
     setShowForm(false);
     setEditingUser(null);
     setFormData({ username: "", password: "", role: "user" });
     setError("");
   };
-
-  if (loading) {
-    return <div className="container mt-4"><p>Loading users...</p></div>;
-  }
 
   return (
     <div className="container mt-4">
@@ -124,125 +119,27 @@ export default function UserManagement() {
         </button>
       </div>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {error && !showForm && <div className="alert alert-danger">{error}</div>}
 
       {/* User Form */}
       {showForm && (
-        <div className="card mb-4">
-          <div className="card-header">
-            <h5>{editingUser ? "Edit User" : "Create New User"}</h5>
-          </div>
-          <div className="card-body">
-            <form onSubmit={handleSubmit}>
-              <div className="row">
-                <div className="col-md-4">
-                  <label className="form-label">Username</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={formData.username}
-                    onChange={(e) =>
-                      setFormData({ ...formData, username: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">
-                    Password {editingUser && "(leave blank to keep current)"}
-                  </label>
-                  <input
-                    type="password"
-                    className="form-control"
-                    value={formData.password}
-                    onChange={(e) =>
-                      setFormData({ ...formData, password: e.target.value })
-                    }
-                    required={!editingUser}
-                  />
-                </div>
-                <div className="col-md-4">
-                  <label className="form-label">Role</label>
-                  <select
-                    className="form-control"
-                    value={formData.role}
-                    onChange={(e) =>
-                      setFormData({ ...formData, role: e.target.value })
-                    }
-                  >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-              </div>
-              <div className="mt-3">
-                <button type="submit" className="btn btn-success me-2">
-                  {editingUser ? "Update User" : "Create User"}
-                </button>
-                <button type="button" className="btn btn-secondary" onClick={cancelForm}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <UserForm
+          formData={formData}
+          setFormData={setFormData}
+          onSubmit={handleFormSubmit}
+          onCancel={resetForm}
+          editingUser={editingUser}
+          error={error}
+        />
       )}
 
       {/* Users Table */}
-      <div className="card">
-        <div className="card-header">
-          <h5>All Users ({users.length})</h5>
-        </div>
-        <div className="card-body">
-          {users.length === 0 ? (
-            <p>No users found.</p>
-          ) : (
-            <table className="table table-striped">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Username</th>
-                  <th>Role</th>
-                  <th>Created</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.username}</td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          user.role === "admin" ? "bg-danger" : "bg-primary"
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </td>
-                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td>
-                      <button
-                        className="btn btn-sm btn-outline-primary me-2"
-                        onClick={() => startEdit(user)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="btn btn-sm btn-outline-danger"
-                        onClick={() => deleteUser(user.id, user.username)}
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      </div>
+      <UserTable
+        users={users}
+        onEdit={startEdit}
+        onDelete={deleteUser}
+        loading={loading}
+      />
     </div>
   );
 }

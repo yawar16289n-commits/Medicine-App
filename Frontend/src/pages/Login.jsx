@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { API_BASE } from "../config";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -9,6 +10,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
+  const { updateAuthState } = useAuth();
 
   // where to go after login
   const from = location.state?.from?.pathname || "/dashboard";
@@ -28,9 +30,13 @@ export default function Login() {
       // store token and role
       localStorage.setItem("token", token);
       localStorage.setItem("role", role);
+      localStorage.setItem("username", username);
       // remove legacy mock flag if present
       localStorage.removeItem("auth");
 
+      // Update auth context
+      updateAuthState();
+      
       navigate("/dashboard", { replace: true });
       return;
     } catch (err) {
@@ -43,6 +49,8 @@ export default function Login() {
           const role = username.toLowerCase() === "admin" ? "admin" : "user";
           localStorage.setItem("auth", "true");
           localStorage.setItem("role", role);
+          localStorage.setItem("username", username);
+          updateAuthState();
           navigate("/dashboard", { replace: true });
         } else {
           setError("Please enter username and password");

@@ -165,41 +165,48 @@ def get_current_user():
     """Get current user from JWT token"""
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
-        return None
+        return None, "token required"
     
     token = auth_header.split(' ')[1]
     try:
         payload = jwt.decode(token, JWT_SECRET, algorithms=['HS256'])
         username = payload.get('sub')
-        return User.query.filter_by(username=username).first()
-    except:
-        return None
+        user = User.query.filter_by(username=username).first()
+        return user, None
+    except jwt.ExpiredSignatureError:
+        return None, "token expired"
+    except jwt.InvalidTokenError:
+        return None, "invalid token"
+    except Exception:
+        return None, "authentication error"
 
 @bp.route('/profile', methods=['GET'])
 def get_profile():
     """Get current user's profile"""
-    user = get_current_user()
+    user, error = get_current_user()
     if not user:
-        return jsonify({"error": "authentication required"}), 401
+        return jsonify({"error": error or "authentication required"}), 401
     
     return jsonify(user.to_dict()), 200
 
 @bp.route('/profile', methods=['PUT'])
 def update_profile():
     """Update current user's profile"""
-    user = get_current_user()
+    user, error = get_current_user()
     if not user:
-        return jsonify({"error": "authentication required"}), 401
+        return jsonify({"error": error or "authentication required"}), 401
     
     data = request.get_json() or {}
+    username_changed = False
     
     # Update username if provided
-    if 'username' in data:
+    if 'username' in data and data['username'] != user.username:
         # Check if username already exists (excluding current user)
         existing = User.query.filter(User.username == data['username'], User.id != user.id).first()
         if existing:
             return jsonify({"error": "username already exists"}), 400
         user.username = data['username']
+        username_changed = True
     
     # Update password if provided
     if 'password' in data and data['password']:
@@ -208,7 +215,19 @@ def update_profile():
     # Note: users cannot change their own role
     
     db.session.commit()
-    return jsonify({"message": "profile updated successfully", "user": user.to_dict()}), 200
+    
+    # If username changed, issue a new token
+    response_data = {"message": "profile updated successfully", "user": user.to_dict()}
+    if username_changed:
+        payload = {
+            "sub": user.username,
+            "role": user.role,
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=8)
+        }
+        new_token = jwt.encode(payload, JWT_SECRET, algorithm='HS256')
+        response_data["token"] = new_token
+    
+    return jsonify(response_data), 200
 
 
 # ----------------------------

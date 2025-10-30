@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { API_BASE } from "../config";
+import { useAuth } from "../contexts/AuthContext";
+import ProfileDisplay from "../components/ProfileDisplay";
+import ProfileForm from "../components/ProfileForm";
 
 export default function UserProfile() {
+  const { updateAuthState } = useAuth();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -14,7 +18,7 @@ export default function UserProfile() {
     confirmPassword: ""
   });
 
-  // Get auth headers
+  // Get auth headers - always get fresh token from localStorage
   const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -24,6 +28,7 @@ export default function UserProfile() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
+      setError("");
       const res = await axios.get(`${API_BASE}/api/profile`, {
         headers: getAuthHeaders()
       });
@@ -33,9 +38,12 @@ export default function UserProfile() {
         password: "",
         confirmPassword: ""
       });
-      setError("");
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to fetch profile");
+      if (err.response?.status === 401) {
+        setError("Your session has expired. Please login again.");
+      } else {
+        setError(err.response?.data?.error || "Failed to fetch profile");
+      }
     } finally {
       setLoading(false);
     }
@@ -46,8 +54,7 @@ export default function UserProfile() {
   }, []);
 
   // Handle form submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleProfileUpdate = async () => {
     setError("");
     setSuccess("");
 
@@ -66,23 +73,36 @@ export default function UserProfile() {
       if (formData.password) {
         updateData.password = formData.password;
       }
-
-      await axios.put(`${API_BASE}/api/profile`, updateData, {
+      
+      const response = await axios.put(`${API_BASE}/api/profile`, updateData, {
         headers: getAuthHeaders()
+      });
+
+      // Check if a new token was issued (username changed)
+      if (response.data.token) {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("username", response.data.user.username);
+        updateAuthState();
+      }
+
+      // Update the local state immediately with the response data
+      setUser(response.data.user);
+      setFormData({
+        username: response.data.user.username,
+        password: "",
+        confirmPassword: ""
       });
 
       setSuccess("Profile updated successfully!");
       setEditing(false);
       
-      // Update stored username if changed and using token auth
-      const token = localStorage.getItem("token");
-      if (token && formData.username !== user.username) {
-        // Note: In a real app, you might want to issue a new token with the updated username
-        // For now, we'll just refresh the profile data
-        fetchProfile();
-      }
     } catch (err) {
-      setError(err.response?.data?.error || "Failed to update profile");
+      if (err.response?.status === 401) {
+        setError("Your session has expired. Please login again.");
+        // Don't handle logout here - let AuthContext handle it
+      } else {
+        setError(err.response?.data?.error || "Failed to update profile");
+      }
     }
   };
 
@@ -123,116 +143,22 @@ export default function UserProfile() {
               )}
             </div>
             <div className="card-body">
-              {error && <div className="alert alert-danger">{error}</div>}
-              {success && <div className="alert alert-success">{success}</div>}
-
               {editing ? (
-                /* Edit Form */
-                <form onSubmit={handleSubmit}>
-                  <div className="mb-3">
-                    <label className="form-label">Username</label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={formData.username}
-                      onChange={(e) =>
-                        setFormData({ ...formData, username: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">
-                      New Password (leave blank to keep current)
-                    </label>
-                    <input
-                      type="password"
-                      className="form-control"
-                      value={formData.password}
-                      onChange={(e) =>
-                        setFormData({ ...formData, password: e.target.value })
-                      }
-                      placeholder="Enter new password or leave blank"
-                    />
-                  </div>
-
-                  {formData.password && (
-                    <div className="mb-3">
-                      <label className="form-label">Confirm New Password</label>
-                      <input
-                        type="password"
-                        className="form-control"
-                        value={formData.confirmPassword}
-                        onChange={(e) =>
-                          setFormData({ ...formData, confirmPassword: e.target.value })
-                        }
-                        placeholder="Confirm new password"
-                        required
-                      />
-                    </div>
-                  )}
-
-                  <div className="d-flex gap-2">
-                    <button type="submit" className="btn btn-success">
-                      Save Changes
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      onClick={cancelEdit}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
+                <ProfileForm
+                  user={user}
+                  formData={formData}
+                  setFormData={setFormData}
+                  onSubmit={handleProfileUpdate}
+                  onCancel={cancelEdit}
+                  error={error}
+                  success={success}
+                />
               ) : (
-                /* Display Mode */
-                <div>
-                  <div className="row mb-3">
-                    <div className="col-sm-3">
-                      <strong>Username:</strong>
-                    </div>
-                    <div className="col-sm-9">{user.username}</div>
-                  </div>
-
-                  <div className="row mb-3">
-                    <div className="col-sm-3">
-                      <strong>Role:</strong>
-                    </div>
-                    <div className="col-sm-9">
-                      <span
-                        className={`badge ${
-                          user.role === "admin" ? "bg-danger" : "bg-primary"
-                        }`}
-                      >
-                        {user.role}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="row mb-3">
-                    <div className="col-sm-3">
-                      <strong>Account Created:</strong>
-                    </div>
-                    <div className="col-sm-9">
-                      {new Date(user.created_at).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit"
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="row mb-3">
-                    <div className="col-sm-3">
-                      <strong>User ID:</strong>
-                    </div>
-                    <div className="col-sm-9">{user.id}</div>
-                  </div>
-                </div>
+                <>
+                  {error && <div className="alert alert-danger">{error}</div>}
+                  {success && <div className="alert alert-success">{success}</div>}
+                  <ProfileDisplay user={user} loading={false} />
+                </>
               )}
             </div>
           </div>
