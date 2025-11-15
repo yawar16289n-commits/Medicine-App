@@ -57,8 +57,9 @@ export default function UserForm({
                   setFormData({ ...formData, role: e.target.value })
                 }
               >
-                <option value="user">User</option>
                 <option value="admin">Admin</option>
+                <option value="analyst">Analyst</option>
+                <option value="data_operator">Data Operator</option>
               </select>
             </div>
           </div>

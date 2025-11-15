@@ -1,0 +1,11 @@
+Week 1: Set up Flask backend with SQLAlchemy, created basic medicine CRUD endpoints and database models.
+
+Week 2: Built React frontend with basic components (MedicineTable, MedicineForm) and established API connectivity using axios.
+
+Week 3: Implemented user authentication system with JWT, created login/register functionality and user profile management.
+
+Week 4: Added role-based access control (admin, analyst, data_operator) and implemented file upload functionality for CSV/Excel imports.
+
+Week 5: Implemented role-specific UI elements, Enhanced UI/UX with improved styling.
+
+

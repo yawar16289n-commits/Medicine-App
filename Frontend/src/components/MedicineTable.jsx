@@ -1,6 +1,8 @@
 import React from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function MedicineTable({ medicines, onDelete, onEdit }) {
+  const { user } = useAuth();
   if (!medicines || medicines.length === 0) {
     return <p className="text-center mt-4">No medicines found.</p>;
   }
@@ -15,7 +17,7 @@ export default function MedicineTable({ medicines, onDelete, onEdit }) {
   return (
     <div className="p-6">
       <h2 className="text-primary mb-3 ">Medicine Forecast</h2>
-      <table className="min-w-full bg-white border border-gray-300">
+      <table className="table table-bordered w-100 bg-white">
         <thead>
           <tr className="bg-gray-200 text-left">
             <th className="p-2 border">ID</th>
@@ -23,9 +25,13 @@ export default function MedicineTable({ medicines, onDelete, onEdit }) {
             <th className="p-2 border">MedicineID</th>
             <th className="p-2 border">Name</th>
             <th className="p-2 border">Stock</th>
-            <th className="p-2 border">Forecast</th>
+            {(user?.role === 'admin' || user?.role === 'analyst') && (
+              <th className="p-2 border">Forecast</th>
+            )}
             <th className="p-2 border">Stock Status</th>
-            <th className="p-2 border">Action</th>
+            {(user?.role === 'admin' || user?.role === 'data_operator') && (
+              <th className="p-2 border">Action</th>
+            )}
           </tr>
         </thead>
         <tbody>
@@ -45,22 +51,26 @@ export default function MedicineTable({ medicines, onDelete, onEdit }) {
                 <td className="p-2 border">{med.medicineId}</td>
                 <td className="p-2 border">{med.name}</td>
                 <td className="p-2 border">{med.stock}</td>
-                <td className="p-2 border">{med.forecast}</td>
+                {(user?.role === 'admin' || user?.role === 'analyst') && (
+                  <td className="p-2 border">{med.forecast}</td>
+                )}
                 <td className="p-2 border">{med.stockStatus}</td>
-                <td className="p-2 border">
-                  <button
-                    onClick={() => onDelete(med.id)}
-                    className="bg-red-500 text-white px-2 py-1 rounded"
-                  >
-                    Delete
-                  </button>
-                  <button
-                    onClick={() => onEdit(med)}
-                    className="bg-blue-500 text-white px-2 py-1 rounded ml-2"
-                  >
-                    Edit
-                  </button>
-                </td>
+                {(user?.role === 'admin' || user?.role === 'data_operator') && (
+                  <td className="p-2 border">
+                    <button
+                      onClick={() => onDelete(med.id)}
+                      className="btn btn-danger me-2"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => onEdit(med)}
+                      className="btn btn-primary"
+                    >
+                      Edit
+                    </button>
+                  </td>
+                )}
               </tr>
             ))
           )}

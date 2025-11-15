@@ -4,6 +4,7 @@ import MedicineForm from "../components/MedicineForm";
 import MedicineTable from "../components/MedicineTable";
 import FileUpload from "../components/FileUpload";
 import { MEDICINES_API } from "../config";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function MedicinesPage() {
   const [medicines, setMedicines] = useState([]);
@@ -12,6 +13,7 @@ export default function MedicinesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const medicinesPerPage = 10;
+  const { user } = useAuth();
 
   const API_URL = MEDICINES_API;
 
@@ -89,22 +91,26 @@ export default function MedicinesPage() {
 
   return (
     <div className="container mt-4">
-      {/* ====== Upload Section ====== */}
-      <h3 className="text-primary mb-3">Upload Medicine Data</h3>
-      <FileUpload onUploadSuccess={fetchMedicines} />
-      <hr />
+      {(user?.role === 'admin' || user?.role === 'data_operator') && (
+        <>
+          {/* ====== Upload Section ====== */}
+          <h3 className="text-primary mb-3">Upload Medicine Data</h3>
+          <FileUpload onUploadSuccess={fetchMedicines} />
+          <hr />
 
-      {/* ====== Add / Edit Form ====== */}
-      <h3 className="text-primary mt-4 mb-3">
-        {editing ? "Edit Medicine" : "Add New Medicine"}
-      </h3>
-      <MedicineForm
-        onAdd={addMedicine}
-        onUpdate={updateMedicine}
-        editing={editing}
-        currentMedicine={editing ? medicines[currentIndex] : null}
-      />
-      <hr />
+          {/* ====== Add / Edit Form ====== */}
+          <h3 className="text-primary mt-4 mb-3">
+            {editing ? "Edit Medicine" : "Add New Medicine"}
+          </h3>
+          <MedicineForm
+            onAdd={addMedicine}
+            onUpdate={updateMedicine}
+            editing={editing}
+            currentMedicine={editing ? medicines[currentIndex] : null}
+          />
+          <hr />
+        </>
+      )}
 
       {/* ====== Search ====== */}
       <div className="mb-3">

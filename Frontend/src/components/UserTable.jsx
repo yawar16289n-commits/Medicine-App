@@ -33,10 +33,14 @@ export default function UserTable({ users, onEdit, onDelete, loading }) {
                 <td>
                   <span
                     className={`badge ${
-                      user.role === "admin" ? "bg-danger" : "bg-primary"
+                      user.role === "admin" 
+                        ? "bg-danger" 
+                        : user.role === "analyst"
+                        ? "bg-info"
+                        : "bg-primary"
                     }`}
                   >
-                    {user.role}
+                    {user.role.replace("_", " ")}
                   </span>
                 </td>
                 <td>{new Date(user.created_at).toLocaleDateString()}</td>

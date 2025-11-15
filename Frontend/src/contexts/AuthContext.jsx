@@ -49,7 +49,6 @@ export const AuthProvider = ({ children }) => {
 
   const updateAuthState = () => {
     const token = localStorage.getItem("token");
-    const mock = localStorage.getItem("auth") === "true";
     
     if (token) {
       const role = getRoleFromToken(token);
@@ -63,11 +62,6 @@ export const AuthProvider = ({ children }) => {
       } else {
         logout();
       }
-    } else if (mock) {
-      const role = localStorage.getItem("role") || "user";
-      const username = localStorage.getItem("username") || "mock-user";
-      setUser({ username, role });
-      setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
       setUser(null);

@@ -1,23 +1,20 @@
 # models.py
 from database import db
-from flask_bcrypt import Bcrypt
-
-bcrypt = Bcrypt()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-    role = db.Column(db.String(20), nullable=False, default='user')
+    password = db.Column(db.String(128), nullable=False)  # Plain text for development
+    role = db.Column(db.String(20), nullable=False, default='data_operator')  # admin, analyst, data_operator
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def set_password(self, password):
-        """Hash and set the password"""
-        self.password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
+        """Set password (plain text for development)"""
+        self.password = password
 
     def check_password(self, password):
-        """Check if provided password matches the hash"""
-        return bcrypt.check_password_hash(self.password_hash, password)
+        """Check if provided password matches"""
+        return self.password == password
 
     def to_dict(self):
         return {

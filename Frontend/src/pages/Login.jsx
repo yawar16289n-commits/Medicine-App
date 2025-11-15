@@ -44,17 +44,8 @@ export default function Login() {
       
       // Check if it's a network error (backend unreachable) vs credential error
       if (!err.response) {
-        // Network error - backend unreachable, use mock auth
-        if (username && password) {
-          const role = username.toLowerCase() === "admin" ? "admin" : "user";
-          localStorage.setItem("auth", "true");
-          localStorage.setItem("role", role);
-          localStorage.setItem("username", username);
-          updateAuthState();
-          navigate("/dashboard", { replace: true });
-        } else {
-          setError("Please enter username and password");
-        }
+        // Network error - backend unreachable, show error
+        setError("Unable to connect to server. Please make sure the backend is running.");
       } else {
         // Backend responded with error (invalid credentials, etc.)
         setError(err.response?.data?.error || "Invalid credentials");

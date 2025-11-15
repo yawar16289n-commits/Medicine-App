@@ -13,7 +13,7 @@ export default function UserManagement() {
   const [formData, setFormData] = useState({
     username: "",
     password: "",
-    role: "user"
+    role: "data_operator"  // Default to data operator role
   });
 
   // Get auth headers

@@ -58,8 +58,8 @@ def register():
         return jsonify({"error": "username already exists"}), 400
 
     # Validate role
-    if role not in ['user', 'admin']:
-        return jsonify({"error": "role must be 'user' or 'admin'"}), 400
+    if role not in ['admin', 'analyst', 'data_operator']:
+        return jsonify({"error": "role must be 'admin', 'analyst', or 'data_operator'"}), 400
 
     # Create new user
     user = User(username=username, role=role)
@@ -130,8 +130,8 @@ def update_user(user_id):
     
     # Update role if provided
     if 'role' in data:
-        if data['role'] not in ['user', 'admin']:
-            return jsonify({"error": "role must be 'user' or 'admin'"}), 400
+        if data['role'] not in ['admin', 'analyst', 'data_operator']:
+            return jsonify({"error": "role must be 'admin', 'analyst', or 'data_operator'"}), 400
         user.role = data['role']
     
     # Update password if provided
@@ -156,6 +156,14 @@ def delete_user(user_id):
     
     db.session.delete(user)
     db.session.commit()
+    
+    # Reset auto-increment to the maximum existing ID + 1
+    # This ensures we use the next available ID after the highest existing one
+    result = db.session.execute("SELECT MAX(id) FROM user").scalar()
+    next_id = 1 if result is None else result + 1
+    db.session.execute(f"ALTER TABLE user AUTO_INCREMENT = {next_id}")
+    db.session.commit()
+    
     return jsonify({"message": "user deleted successfully"}), 200
 
 # ----------------------------

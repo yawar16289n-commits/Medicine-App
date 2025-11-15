@@ -22,7 +22,7 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLALCHEMY_DATABASE_URI
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:3000"])
+    CORS(app, origins=["http://localhost:5173", "http://127.0.0.1:3000", "http://localhost:3000", "http://127.0.0.1:5173"], supports_credentials=True)
     
     db.init_app(app)
     migrate = Migrate(app, db)

@@ -1,4 +1,5 @@
 {
+  "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/package.json",
   "name": "backlinks-record",
   "private": true,
   "version": "0.0.0",
@@ -13,9 +14,7 @@
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
-  },
-  "optionalDependencies": {
+    "react-dom": "^19.1.1",
     "react-router-dom": "^6.30.1"
   },
   "devDependencies": {
