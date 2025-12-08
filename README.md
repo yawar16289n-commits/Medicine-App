@@ -1,40 +1,154 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# WPL Learning Platform
 
-## Getting Started
+A full-stack learning platform similar to Coursera, built with Flask (backend) and Next.js (frontend).
 
-First, run the development server:
+## Features
 
+- User authentication (students, instructors, admins)
+- Course management
+- User profiles
+- Enrollment system
+- Dashboard
+
+## Tech Stack
+
+### Backend
+- Flask 3.0.0
+- MySQL 8.0+
+- Flask-SQLAlchemy 3.1.1
+- Flask-CORS 4.0.0
+- Flask-Migrate 4.0.5
+
+### Frontend
+- Next.js 14.2.17
+- React 18
+- TypeScript 5
+- Tailwind CSS 3.4.1
+
+## Setup
+
+### Backend Setup
+
+1. Navigate to backend directory:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cd backend
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Create virtual environment:
+```bash
+python -m venv venv
+venv\Scripts\activate  # Windows
+```
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+4. Create `.env` file with your configuration:
+```
+DATABASE_URL=mysql+mysqlconnector://root:password@localhost/wpl_coursera
+SECRET_KEY=your-secret-key
+CORS_ORIGINS=http://localhost:3000,http://localhost:3001
+```
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+5. Initialize database:
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+6. Run the backend server:
+```bash
+python app.py
+```
 
-## Learn More
+Backend will run on `http://localhost:5000`
 
-To learn more about Next.js, take a look at the following resources:
+### Frontend Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Navigate to frontend directory:
+```bash
+cd frontend
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+2. Install dependencies:
+```bash
+npm install
+```
 
-## Deploy on Vercel
+3. Create `.env.local` file:
+```
+NEXT_PUBLIC_API_URL=http://localhost:5000
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Run the development server:
+```bash
+npm run dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+Frontend will run on `http://localhost:3000`
+
+## Project Structure
+
+```
+WPL project/
+├── backend/
+│   ├── models/          # Database models
+│   ├── routes/          # API routes
+│   ├── app.py          # Flask application
+│   ├── config.py       # Configuration
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── app/        # Next.js pages
+│   │   ├── components/ # React components
+│   │   ├── contexts/   # React contexts
+│   │   └── lib/        # Utilities and API
+│   └── package.json
+└── README.md
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/signup` - Register new user
+- `POST /api/auth/login` - Login user
+
+### User
+- `GET /api/user/profile` - Get user profile
+- `PUT /api/user/profile` - Update user profile
+
+### Courses
+- `GET /api/courses/` - List all courses
+- `GET /api/courses/:id` - Get course details
+- `POST /api/courses/` - Create course (instructor only)
+- `PUT /api/courses/:id` - Update course (instructor only)
+- `DELETE /api/courses/:id` - Delete course (instructor only)
+
+### Enrollment
+- `POST /api/enrollment/enroll` - Enroll in course
+- `POST /api/enrollment/unenroll` - Unenroll from course
+- `GET /api/enrollment/my-courses` - Get user's enrolled courses
+
+### Dashboard
+- `GET /api/dashboard/stats` - Get dashboard statistics
+
+## Development Status
+
+✅ Completed:
+- Backend API (authentication, courses, profiles, dashboards, enrollments)
+- Frontend authentication integration (modal-based)
+- User profile page with edit functionality
+- Protected routes
+- TypeScript error fixes
+
+🚧 In Progress:
+- Course listing and detail pages
+- Enrollment UI
+- Dashboard integration
+
+## License
+
+MIT
