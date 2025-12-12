@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
 
-// Course Database
 const coursesData = {
   '1': {
     id: '1',
@@ -261,7 +260,6 @@ export default function CourseDetail() {
 
   return (
     <main className="min-h-screen bg-white">
-      {/* Header */}
       <header className="w-full border-b bg-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/dashboard">
@@ -280,7 +278,6 @@ export default function CourseDetail() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="bg-blue-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
@@ -321,7 +318,6 @@ export default function CourseDetail() {
             </div>
           </div>
 
-          {/* Right Sidebar - Enroll Card */}
           <div className="bg-white text-gray-900 rounded-lg p-6 h-fit">
             <img src={course.image} alt={course.title} className="w-full h-40 object-cover rounded-lg mb-4" />
             
@@ -350,7 +346,6 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* Content Tabs */}
       <section className="border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex gap-8">
@@ -371,11 +366,9 @@ export default function CourseDetail() {
         </div>
       </section>
 
-      {/* Content Area */}
       <section className="py-12">
         <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-3 gap-8">
           <div className="md:col-span-2">
-            {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-8">
                 <div>
@@ -410,7 +403,6 @@ export default function CourseDetail() {
               </div>
             )}
 
-            {/* Curriculum Tab */}
             {activeTab === 'curriculum' && (
               <div className="space-y-4">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Curriculum</h2>
@@ -434,7 +426,6 @@ export default function CourseDetail() {
               </div>
             )}
 
-            {/* Reviews Tab */}
             {activeTab === 'reviews' && (
               <div className="space-y-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Student Reviews</h2>
@@ -465,7 +456,6 @@ export default function CourseDetail() {
               </div>
             )}
 
-            {/* About Instructor Tab */}
             {activeTab === 'about' && (
               <div className="space-y-6">
                 <div className="flex gap-6">
@@ -483,7 +473,6 @@ export default function CourseDetail() {
             )}
           </div>
 
-          {/* Right Sidebar - Course Info */}
           <div className="space-y-6">
             <div className="border border-gray-200 rounded-lg p-6">
               <h3 className="font-bold text-gray-900 mb-4">Course Details</h3>

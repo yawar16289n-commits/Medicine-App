@@ -6,7 +6,6 @@ import { useState } from 'react';
 export default function About() {
   return (
     <main className="min-h-screen bg-white">
-      {/* Header */}
       <header className="w-full border-b bg-white">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/">
@@ -27,7 +26,6 @@ export default function About() {
         </div>
       </header>
 
-      {/* Hero Section */}
       <section className="w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20">
         <div className="max-w-7xl mx-auto px-6">
           <h1 className="text-5xl md:text-6xl font-bold mb-6">About Coursera</h1>
@@ -37,7 +35,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Mission Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -62,7 +59,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Stats Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">By The Numbers</h2>
@@ -87,7 +83,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Values Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Our Core Values</h2>
@@ -125,7 +120,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* History Section */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Our Story</h2>
@@ -143,7 +137,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Leadership Section */}
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Leadership Team</h2>
@@ -168,7 +161,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <h2 className="text-4xl font-bold mb-6">Join Our Community</h2>
@@ -181,7 +173,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="border-t border-gray-200 bg-white">
         <div className="max-w-7xl mx-auto px-6 py-16">
           <div className="grid md:grid-cols-5 gap-8 mb-12">

@@ -84,7 +84,6 @@ function ProfileContent() {
       setEditing(false);
       setMessage('Profile updated successfully!');
       
-      // Update user in localStorage
       const storedUser = localStorage.getItem('user');
       if (storedUser) {
         const userData = JSON.parse(storedUser);
@@ -115,7 +114,6 @@ function ProfileContent() {
     <main className="min-h-screen bg-white">
       <Header />
 
-      {/* Breadcrumb */}
       <div className="bg-gray-50 border-b">
         <div className="max-w-7xl mx-auto px-6 py-3">
           <p className="text-sm text-gray-600">
@@ -126,10 +124,8 @@ function ProfileContent() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid lg:grid-cols-4 gap-8">
-          {/* Left Sidebar */}
           <div className="lg:col-span-1">
             <div className="sticky top-24">
               <h3 className="text-lg font-bold text-gray-900 mb-6">Settings</h3>
@@ -156,16 +152,13 @@ function ProfileContent() {
             </div>
           </div>
 
-          {/* Main Content */}
           <div className="lg:col-span-3">
-            {/* Success/Error Message */}
             {message && (
               <div className={`mb-6 p-4 rounded-md ${message.includes('success') ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`}>
                 {message}
               </div>
             )}
 
-            {/* Profile Section */}
             <div className="bg-white">
               <div className="flex justify-between items-start mb-8">
                 <div>
@@ -199,7 +192,6 @@ function ProfileContent() {
                 )}
               </div>
 
-              {/* Profile Picture */}
               <div className="mb-8 pb-8 border-b border-gray-200">
                 <div className="flex items-start gap-6">
                   <div className="w-28 h-28 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-4xl">
@@ -228,9 +220,7 @@ function ProfileContent() {
                 </div>
               </div>
 
-              {/* Form Fields */}
               <div className="space-y-6">
-                {/* Full Name */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
                   <input
@@ -242,7 +232,6 @@ function ProfileContent() {
                   />
                 </div>
 
-                {/* Email (read-only) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Email</label>
                   <input
@@ -254,7 +243,6 @@ function ProfileContent() {
                   <p className="mt-1 text-sm text-gray-500">Email cannot be changed</p>
                 </div>
 
-                {/* Role (read-only) */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Account Type</label>
                   <input
@@ -265,7 +253,6 @@ function ProfileContent() {
                   />
                 </div>
 
-                {/* Bio */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Bio</label>
                   <textarea
@@ -278,7 +265,6 @@ function ProfileContent() {
                   />
                 </div>
 
-                {/* Account Created */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Member Since</label>
                   <input

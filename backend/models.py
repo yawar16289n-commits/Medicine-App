@@ -1,12 +1,8 @@
-"""
-Database Models for WPL Learning Platform
-"""
 from datetime import datetime
 from app import db
 from sqlalchemy import Numeric
 
 class User(db.Model):
-    """User model - stores learner, instructor, and admin accounts"""
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -19,7 +15,6 @@ class User(db.Model):
     created_at = db.Column(db.DateTime)
     
     def to_dict(self):
-        """Convert to dictionary for API responses"""
         return {
             'id': self.id,
             'name': self.name,
@@ -32,7 +27,6 @@ class User(db.Model):
 
 
 class Course(db.Model):
-    """Course model - stores course information"""
     __tablename__ = 'courses'
     
     id = db.Column(db.Integer, primary_key=True)
@@ -53,7 +47,6 @@ class Course(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
-        """Convert to dictionary for API responses"""
         return {
             'id': self.id,
             'title': self.title,
@@ -73,22 +66,19 @@ class Course(db.Model):
 
 
 class Enrollment(db.Model):
-    """Enrollment model - tracks which users are enrolled in which courses"""
     __tablename__ = 'enrollments'
     
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     course_id = db.Column(db.Integer, db.ForeignKey('courses.id'), nullable=False)
-    progress = db.Column(db.Integer, default=0)  # 0-100%
+    progress = db.Column(db.Integer, default=0)
     status = db.Column(db.Enum('active', 'completed', 'dropped'), default='active')
     enrolled_at = db.Column(db.DateTime, default=datetime.utcnow)
     completed_at = db.Column(db.DateTime, nullable=True)
     
-    # Ensure user can't enroll in same course twice
     __table_args__ = (db.UniqueConstraint('user_id', 'course_id', name='unique_user_course'),)
     
     def to_dict(self):
-        """Convert to dictionary for API responses"""
         return {
             'id': self.id,
             'user_id': self.user_id,

@@ -1,4 +1,3 @@
-// API configuration and helper functions
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 interface ApiResponse<T = unknown> {
@@ -8,7 +7,6 @@ interface ApiResponse<T = unknown> {
   message?: string;
 }
 
-// Generic API call function
 async function apiCall<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
@@ -43,7 +41,6 @@ async function apiCall<T = unknown>(
   }
 }
 
-// Auth API functions
 export const authApi = {
   signup: async (userData: {
     name: string;
@@ -71,7 +68,6 @@ export const authApi = {
   },
 };
 
-// User API functions
 export const userApi = {
   getPublicProfile: async (userId: number) => {
     return apiCall(`/users/profile/${userId}`, {
@@ -96,7 +92,6 @@ export const userApi = {
   },
 };
 
-// Course API functions
 export const courseApi = {
   getCourses: async (filters?: {
     category?: string;
@@ -121,7 +116,6 @@ export const courseApi = {
   },
 };
 
-// Dashboard API functions
 export const dashboardApi = {
   getStudentDashboard: async (userId: number) => {
     return apiCall(`/dashboard/student/${userId}`, {
@@ -136,7 +130,6 @@ export const dashboardApi = {
   },
 };
 
-// Enrollment API functions
 export const enrollmentApi = {
   enroll: async (userId: number, courseId: number) => {
     return apiCall('/enrollments/', {

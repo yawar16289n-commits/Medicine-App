@@ -51,7 +51,6 @@ export default function ClientReviews() {
           {reviews.map((review, i) => (
             <div key={i} className="bg-white rounded-lg shadow-md p-8 hover:shadow-lg transition-shadow">
               
-              {/* Rating */}
               <div className="flex gap-1 mb-4">
                 {[...Array(review.rating)].map((_, j) => (
                   <svg key={j} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 24 24">
@@ -60,12 +59,10 @@ export default function ClientReviews() {
                 ))}
               </div>
 
-              {/* Quote */}
               <p className="text-gray-700 text-lg mb-6 italic">
                 "{review.quote}"
               </p>
 
-              {/* Author */}
               <div className="flex items-center gap-4">
                 <img 
                   src={review.image}
@@ -82,7 +79,6 @@ export default function ClientReviews() {
           ))}
         </div>
 
-        {/* Stats Below Reviews */}
         <div className="mt-16 grid md:grid-cols-3 gap-8">
           <div className="text-center">
             <div className="text-4xl font-bold text-blue-600 mb-2">150M+</div>

@@ -1,20 +1,12 @@
-"""
-Enrollment Routes - Course enrollment management
-"""
 from flask import Blueprint, jsonify, request
 from models import User, Course, Enrollment
 from database import db
 from datetime import datetime
 
-# Create blueprint
 enrollment_bp = Blueprint('enrollment', __name__, url_prefix='/enrollments')
 
 @enrollment_bp.route('/', methods=['POST'])
 def enroll_in_course():
-    """
-    Enroll a user in a course
-    Expects JSON: { user_id, course_id }
-    """
     data = request.get_json()
     
     if not data or 'user_id' not in data or 'course_id' not in data:
@@ -26,7 +18,6 @@ def enroll_in_course():
     user_id = data['user_id']
     course_id = data['course_id']
     
-    # Check if user exists
     user = User.query.get(user_id)
     if not user:
         return jsonify({
@@ -34,7 +25,6 @@ def enroll_in_course():
             'error': 'User not found'
         }), 404
     
-    # Check if course exists
     course = Course.query.get(course_id)
     if not course:
         return jsonify({
@@ -42,14 +32,12 @@ def enroll_in_course():
             'error': 'Course not found'
         }), 404
     
-    # Check if course is published
     if not course.is_published:
         return jsonify({
             'success': False,
             'error': 'Course is not available for enrollment'
         }), 400
     
-    # Check if already enrolled
     existing_enrollment = Enrollment.query.filter_by(
         user_id=user_id,
         course_id=course_id
@@ -57,7 +45,6 @@ def enroll_in_course():
     
     if existing_enrollment:
         if existing_enrollment.status == 'dropped':
-            # Re-enroll if previously dropped
             existing_enrollment.status = 'active'
             existing_enrollment.enrolled_at = datetime.utcnow()
             db.session.commit()
@@ -73,7 +60,6 @@ def enroll_in_course():
                 'error': 'Already enrolled in this course'
             }), 400
     
-    # Create new enrollment
     new_enrollment = Enrollment(
         user_id=user_id,
         course_id=course_id,
@@ -84,7 +70,6 @@ def enroll_in_course():
     
     db.session.add(new_enrollment)
     
-    # Update course total students
     course.total_students += 1
     
     db.session.commit()
@@ -98,9 +83,6 @@ def enroll_in_course():
 
 @enrollment_bp.route('/<int:enrollment_id>', methods=['DELETE'])
 def unenroll_from_course(enrollment_id):
-    """
-    Unenroll from a course (mark as dropped)
-    """
     enrollment = Enrollment.query.get(enrollment_id)
     
     if not enrollment:
@@ -115,10 +97,8 @@ def unenroll_from_course(enrollment_id):
             'error': 'Already unenrolled from this course'
         }), 400
     
-    # Mark as dropped instead of deleting
     enrollment.status = 'dropped'
     
-    # Update course total students
     course = Course.query.get(enrollment.course_id)
     if course and course.total_students > 0:
         course.total_students -= 1
@@ -133,10 +113,6 @@ def unenroll_from_course(enrollment_id):
 
 @enrollment_bp.route('/check/<int:user_id>/<int:course_id>', methods=['GET'])
 def check_enrollment(user_id, course_id):
-    """
-    Check if a user is enrolled in a course
-    Returns enrollment status and details
-    """
     enrollment = Enrollment.query.filter_by(
         user_id=user_id,
         course_id=course_id
@@ -158,10 +134,7 @@ def check_enrollment(user_id, course_id):
 
 @enrollment_bp.route('/<int:enrollment_id>/progress', methods=['PUT'])
 def update_progress(enrollment_id):
-    """
-    Update course progress
-    Expects JSON: { progress } (0-100)
-    """
+    
     enrollment = Enrollment.query.get(enrollment_id)
     
     if not enrollment:
@@ -180,7 +153,6 @@ def update_progress(enrollment_id):
     
     progress = data['progress']
     
-    # Validate progress value
     if not isinstance(progress, (int, float)) or progress < 0 or progress > 100:
         return jsonify({
             'success': False,
@@ -189,7 +161,6 @@ def update_progress(enrollment_id):
     
     enrollment.progress = progress
     
-    # Mark as completed if progress reaches 100%
     if progress >= 100 and enrollment.status == 'active':
         enrollment.status = 'completed'
         enrollment.completed_at = datetime.utcnow()
@@ -205,10 +176,7 @@ def update_progress(enrollment_id):
 
 @enrollment_bp.route('/user/<int:user_id>', methods=['GET'])
 def get_user_enrollments(user_id):
-    """
-    Get all enrollments for a user
-    Optional query params: status (active/completed/dropped)
-    """
+    
     user = User.query.get(user_id)
     
     if not user:
@@ -217,7 +185,6 @@ def get_user_enrollments(user_id):
             'error': 'User not found'
         }), 404
     
-    # Get status filter from query params
     status = request.args.get('status')
     
     query = Enrollment.query.filter_by(user_id=user_id)

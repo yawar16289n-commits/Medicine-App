@@ -6,7 +6,6 @@ from database import db
 from routes import api_bp
 
 def create_app():
-    """Create Flask application"""
     app = Flask(__name__)
     
     # Load configuration
@@ -14,13 +13,11 @@ def create_app():
 
     CORS(app, origins=app.config['CORS_ORIGINS'])
 
-    # Initialize extensions
     db.init_app(app)
     migrate = Migrate(app, db)
 
     app.register_blueprint(api_bp)
     
-    # Health check endpoint
     @app.route('/health', methods=['GET'])
     def health_check():
         return {'status': 'ok', 'message': 'Server is running'}, 200

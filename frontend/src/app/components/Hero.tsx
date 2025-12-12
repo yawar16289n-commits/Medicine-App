@@ -3,7 +3,6 @@ export default function Hero() {
     <section className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 py-24">
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
 
-        {/* Left Text */}
         <div>
           <h2 className="text-5xl md:text-6xl font-bold leading-tight text-gray-900">
             Learn without limits
@@ -21,7 +20,6 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right Illustration */}
         <div className="relative">
           <img 
             src="https://images.unsplash.com/photo-1516534775068-bb57d973e671?w=600&h=400&fit=crop&q=80"

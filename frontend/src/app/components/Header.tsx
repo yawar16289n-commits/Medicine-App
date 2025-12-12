@@ -21,16 +21,13 @@ export default function Header() {
   return (
     <>
       {!isAuthenticated ? (
-        // Default Header (Not Logged In)
         <header className="w-full border-b bg-white">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             
-            {/* Logo */}
             <Link href="/">
-              <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">Coursera</h1>
+              <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">COursera</h1>
             </Link>
 
-            {/* Nav */}
             <nav className="hidden md:flex space-x-8 text-sm font-medium">
               <a href="#" className="hover:text-blue-600">Explore</a>
               <a href="/about" className="hover:text-blue-600">About</a>
@@ -38,7 +35,6 @@ export default function Header() {
               <a href="#" className="hover:text-blue-600">For Enterprise</a>
             </nav>
 
-            {/* Buttons */}
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setShowLogin(true)}
@@ -57,16 +53,13 @@ export default function Header() {
           </div>
         </header>
       ) : (
-        // Logged In Header
         <header className="w-full border-b bg-white sticky top-0 z-40">
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             
-            {/* Logo */}
             <Link href="/dashboard">
               <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">Coursera</h1>
             </Link>
 
-            {/* Search Bar */}
             <div className="hidden md:flex flex-1 mx-8">
               <div className="w-full relative">
                 <input
@@ -80,7 +73,6 @@ export default function Header() {
               </div>
             </div>
 
-            {/* Right Actions */}
             <div className="flex items-center gap-6">
               <span className="text-sm text-gray-600 hidden sm:block">
                 Welcome, {user?.name}

@@ -8,14 +8,12 @@ export default function Dashboard() {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="w-full border-b bg-white sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/">
             <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">Coursera</h1>
           </Link>
 
-          {/* Search Bar */}
           <div className="hidden md:flex flex-1 mx-8">
             <div className="w-full relative">
               <input
@@ -31,7 +29,6 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Right Actions */}
           <div className="flex items-center gap-6">
             <button className="text-gray-600 hover:text-gray-900 hidden sm:block">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -45,15 +42,12 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-8">
-        {/* Welcome Section */}
         <div className="mb-12">
           <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, User!</h2>
           <p className="text-gray-600">Continue your learning journey</p>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-8 mb-8 border-b border-gray-200">
           <button className="px-4 py-3 border-b-2 border-blue-600 text-blue-600 font-medium">
             In Progress
@@ -66,7 +60,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* In Progress Courses */}
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">Continuing Education</h3>
           <div className="grid md:grid-cols-3 gap-6">
@@ -111,7 +104,6 @@ export default function Dashboard() {
                   <h4 className="text-lg font-bold text-gray-900 mb-1">{course.title}</h4>
                   <p className="text-sm text-gray-600 mb-4">{course.instructor}</p>
                   
-                  {/* Progress Bar */}
                   <div className="mb-3">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs font-medium text-gray-600">Progress</span>
@@ -135,7 +127,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recommended For You */}
         <div className="mb-16">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">Recommended For You</h3>
           <div className="grid md:grid-cols-4 gap-6">
@@ -164,7 +155,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Explore Paths */}
         <div>
           <h3 className="text-2xl font-bold text-gray-900 mb-6">Explore Learning Paths</h3>
           <div className="grid md:grid-cols-2 gap-6">
