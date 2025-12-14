@@ -44,7 +44,7 @@ class Course(db.Model):
     total_students = db.Column(db.Integer, default=0)
     total_reviews = db.Column(db.Integer, default=0)
     is_published = db.Column(db.Boolean, default=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime)
     
     def to_dict(self):
         return {

@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { useParams } from 'next/navigation';
+import UserAvatar from '@/app/components/UserAvatar';
 
 const coursesData = {
   '1': {
@@ -15,7 +17,7 @@ const coursesData = {
     students: 185000,
     price: 49,
     originalPrice: 99,
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Learn data science fundamentals including statistical analysis, data visualization, and predictive modeling.',
     duration: '4-5 months',
     level: 'Beginner',
@@ -24,7 +26,7 @@ const coursesData = {
     skills: ['Data Analysis', 'Python', 'Statistics', 'Visualization'],
     about: 'Master the core skills of data science. This comprehensive specialization covers data collection, cleaning, analysis, and visualization. You\'ll learn to work with real datasets and build predictive models using Python.',
     instructor_bio: 'Dr. Rachele Tongchitpakdee is a professor of data science with 15+ years of industry experience. She has led data science teams at Fortune 500 companies.',
-    instructor_image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'Data Fundamentals', lessons: 24, duration: '10 hours' },
       { number: 2, title: 'Statistical Analysis & Probability', lessons: 28, duration: '12 hours' },
@@ -50,7 +52,7 @@ const coursesData = {
     students: 225000,
     price: 49,
     originalPrice: 99,
-    image: 'https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Build modern web applications with React. Learn component-based architecture, state management, and advanced patterns.',
     duration: '3-4 months',
     level: 'Intermediate',
@@ -59,7 +61,7 @@ const coursesData = {
     skills: ['React', 'JavaScript', 'Web Development', 'CSS'],
     about: 'Learn to build scalable web applications with React from Meta engineers. This course covers modern JavaScript, React fundamentals, state management with Redux, and testing practices.',
     instructor_bio: 'The Meta Developers program is led by experienced engineers from Meta who have built production-grade React applications serving billions of users.',
-    instructor_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'JavaScript Fundamentals', lessons: 32, duration: '14 hours' },
       { number: 2, title: 'React Basics & Components', lessons: 36, duration: '16 hours' },
@@ -85,7 +87,7 @@ const coursesData = {
     students: 350000,
     price: 49,
     originalPrice: 99,
-    image: 'https://images.unsplash.com/photo-1518432031498-7794beeba4c0?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Learn Machine Learning from the best in the field. This specialization covers the fundamentals of machine learning and deep learning.',
     duration: '3-4 months',
     level: 'Beginner',
@@ -94,7 +96,7 @@ const coursesData = {
     skills: ['Machine Learning', 'Python', 'Neural Networks', 'Deep Learning'],
     about: 'Master Machine Learning fundamentals and build your career in AI. Learn supervised learning, unsupervised learning, and reinforcement learning. This comprehensive specialization will equip you with the skills to understand and apply machine learning techniques to real-world problems.',
     instructor_bio: 'Andrew Ng is the Co-founder of Coursera and an Adjunct Professor of Computer Science at Stanford University. He has published over 100 research papers in machine learning.',
-    instructor_image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'Supervised Machine Learning: Regression and Classification', lessons: 27, duration: '12 hours' },
       { number: 2, title: 'Advanced Learning Algorithms', lessons: 34, duration: '15 hours' },
@@ -119,7 +121,7 @@ const coursesData = {
     students: 156000,
     price: 39,
     originalPrice: 79,
-    image: 'https://images.unsplash.com/photo-1561070791-2526d30994b5?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Learn user-centered design principles and create beautiful, functional interfaces.',
     duration: '5-6 months',
     level: 'Beginner',
@@ -128,7 +130,7 @@ const coursesData = {
     skills: ['Design Thinking', 'Figma', 'Wireframing', 'Prototyping'],
     about: 'Develop a foundation in user-centered design. Learn to create wireframes, prototypes, and high-fidelity designs. Understand user research, usability testing, and design thinking methodologies.',
     instructor_bio: 'Google Design Team brings expertise from designing products used by billions. Learn best practices from industry leaders.',
-    instructor_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'Foundations of User Experience Design', lessons: 25, duration: '11 hours' },
       { number: 2, title: 'UX Research & Testing', lessons: 22, duration: '10 hours' },
@@ -154,7 +156,7 @@ const coursesData = {
     students: 98000,
     price: 59,
     originalPrice: 119,
-    image: 'https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Master business strategy, competitive analysis, and strategic planning.',
     duration: '6 months',
     level: 'Intermediate',
@@ -163,7 +165,7 @@ const coursesData = {
     skills: ['Strategic Planning', 'Business Analysis', 'Leadership', 'Finance'],
     about: 'Learn strategic management from Harvard Business School instructors. Understand competitive positioning, value creation, and strategic decision-making in modern business.',
     instructor_bio: 'Prof. Michael Porter is the leading authority on strategy and competitiveness. His frameworks are used by companies worldwide.',
-    instructor_image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'Business Fundamentals', lessons: 20, duration: '9 hours' },
       { number: 2, title: 'Competitive Strategy', lessons: 24, duration: '11 hours' },
@@ -189,7 +191,7 @@ const coursesData = {
     students: 267000,
     price: 59,
     originalPrice: 119,
-    image: 'https://images.unsplash.com/photo-1677442d019cecf367cde4fdb3fc4e15?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Explore cutting-edge AI and deep learning technologies.',
     duration: '4-5 months',
     level: 'Advanced',
@@ -198,7 +200,7 @@ const coursesData = {
     skills: ['Deep Learning', 'PyTorch', 'Computer Vision', 'NLP'],
     about: 'Master advanced AI and deep learning with world-class instructors. Learn neural networks, computer vision, natural language processing, and cutting-edge AI applications.',
     instructor_bio: 'Dr. Yann LeCun is Chief AI Scientist at Meta and a pioneer in deep learning. He has made fundamental contributions to artificial intelligence.',
-    instructor_image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'Deep Learning Fundamentals', lessons: 32, duration: '15 hours' },
       { number: 2, title: 'Computer Vision', lessons: 28, duration: '13 hours' },
@@ -224,7 +226,7 @@ const coursesData = {
     students: 178000,
     price: 49,
     originalPrice: 99,
-    image: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&h=400&fit=crop&q=80',
+    image: '/placeholder.svg',
     description: 'Learn cloud architecture and AWS services for building scalable applications.',
     duration: '3-4 months',
     level: 'Intermediate',
@@ -233,7 +235,7 @@ const coursesData = {
     skills: ['AWS', 'Cloud Architecture', 'DevOps', 'Scalability'],
     about: 'Master cloud computing with AWS. Learn to design, deploy, and manage scalable cloud applications. Understand microservices, containers, and serverless computing.',
     instructor_bio: 'AWS Architects bring real-world cloud expertise from building enterprise solutions at Amazon.',
-    instructor_image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&q=80',
+    instructor_image: '/placeholder.svg',
     courses: [
       { number: 1, title: 'AWS Fundamentals', lessons: 28, duration: '12 hours' },
       { number: 2, title: 'Compute & Storage Services', lessons: 30, duration: '14 hours' },
@@ -271,9 +273,7 @@ export default function CourseDetail() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </button>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold cursor-pointer">
-              U
-            </div>
+            <UserAvatar />
           </div>
         </div>
       </header>
@@ -310,7 +310,7 @@ export default function CourseDetail() {
             </div>
 
             <div className="flex items-center gap-3">
-              <img src={course.instructor_image} alt={course.instructor} className="w-12 h-12 rounded-full object-cover" />
+              <Image src={course.instructor_image} alt={course.instructor} width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
               <div>
                 <p className="font-semibold">Instructor: {course.instructor}</p>
                 <p className="text-blue-200 text-sm">{course.company}</p>
@@ -319,7 +319,7 @@ export default function CourseDetail() {
           </div>
 
           <div className="bg-white text-gray-900 rounded-lg p-6 h-fit">
-            <img src={course.image} alt={course.title} className="w-full h-40 object-cover rounded-lg mb-4" />
+            <Image src={course.image} alt={course.title} width={400} height={160} className="w-full h-40 object-cover rounded-lg mb-4" />
             
             <div className="space-y-4">
               <div>
@@ -377,7 +377,7 @@ export default function CourseDetail() {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">What you'll learn</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">What you&apos;ll learn</h2>
                   <div className="grid md:grid-cols-2 gap-4">
                     {course.learningOutcomes.map((outcome, i) => (
                       <div key={i} className="flex gap-3">
@@ -391,7 +391,7 @@ export default function CourseDetail() {
                 </div>
 
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Skills you'll gain</h2>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">Skills you&apos;ll gain</h2>
                   <div className="flex flex-wrap gap-3">
                     {course.skills.map((skill, i) => (
                       <span key={i} className="px-4 py-2 bg-gray-200 text-gray-900 rounded-full font-medium">
@@ -432,8 +432,8 @@ export default function CourseDetail() {
                 {[1, 2, 3].map((i) => (
                   <div key={i} className="border-b border-gray-200 pb-6">
                     <div className="flex items-start gap-4">
-                      <img src={`https://images.unsplash.com/photo-150000${i}211169-0a1dd7228f2d?w=50&h=50&fit=crop&q=80`} 
-                        alt="Reviewer" className="w-12 h-12 rounded-full object-cover" />
+                      <Image src="/placeholder.svg" 
+                        alt="Reviewer" width={48} height={48} className="w-12 h-12 rounded-full object-cover" />
                       <div className="flex-1">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -459,8 +459,8 @@ export default function CourseDetail() {
             {activeTab === 'about' && (
               <div className="space-y-6">
                 <div className="flex gap-6">
-                  <img src={course.instructor_image} alt={course.instructor} 
-                    className="w-24 h-24 rounded-full object-cover" />
+                  <Image src={course.instructor_image} alt={course.instructor} 
+                    width={96} height={96} className="w-24 h-24 rounded-full object-cover" />
                   <div>
                     <h2 className="text-2xl font-bold text-gray-900">{course.instructor}</h2>
                     <p className="text-gray-600">{course.company}</p>

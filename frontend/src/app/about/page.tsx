@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
+import Image from 'next/image';
+import Footer from '@/app/components/Footer';
 
 export default function About() {
   return (
@@ -41,7 +42,7 @@ export default function About() {
             <div>
               <h2 className="text-4xl font-bold text-gray-900 mb-6">Our Mission</h2>
               <p className="text-lg text-gray-600 mb-4 leading-relaxed">
-                Coursera's purpose is to democratize education. We aim to empower individuals with the skills they need to compete in the job market and achieve their career goals.
+                Coursera&apos;s purpose is to democratize education. We aim to empower individuals with the skills they need to compete in the job market and achieve their career goals.
               </p>
               <p className="text-lg text-gray-600 leading-relaxed">
                 Through our platform, learners from around the world can access quality education from top universities and companies, regardless of their background or financial situation.
@@ -63,22 +64,17 @@ export default function About() {
         <div className="max-w-7xl mx-auto px-6">
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">By The Numbers</h2>
           <div className="grid md:grid-cols-4 gap-8">
-            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">150M+</div>
-              <p className="text-gray-600">Learners Worldwide</p>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">7000+</div>
-              <p className="text-gray-600">Courses Available</p>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">200+</div>
-              <p className="text-gray-600">Top Universities</p>
-            </div>
-            <div className="bg-white p-8 rounded-lg shadow-md text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">90%</div>
-              <p className="text-gray-600">Report Career Benefit</p>
-            </div>
+            {[
+              { value: '150M+', label: 'Learners Worldwide' },
+              { value: '7000+', label: 'Courses Available' },
+              { value: '200+', label: 'Top Universities' },
+              { value: '90%', label: 'Report Career Benefit' }
+            ].map((stat, i) => (
+              <div key={i} className="bg-white p-8 rounded-lg shadow-md text-center">
+                <div className="text-4xl font-bold text-blue-600 mb-2">{stat.value}</div>
+                <p className="text-gray-600">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -104,7 +100,7 @@ export default function About() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Quality</h3>
-              <p className="text-gray-600">We partner with the world's best universities and organizations to deliver quality education.</p>
+              <p className="text-gray-600">We partner with the world&apos;s best universities and organizations to deliver quality education.</p>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-8">
@@ -114,7 +110,7 @@ export default function About() {
                 </svg>
               </div>
               <h3 className="text-xl font-bold text-gray-900 mb-3">Impact</h3>
-              <p className="text-gray-600">We measure success by the positive impact we have on learners' lives and careers.</p>
+              <p className="text-gray-600">We measure success by the positive impact we have on learners&apos; lives and careers.</p>
             </div>
           </div>
         </div>
@@ -131,7 +127,7 @@ export default function About() {
               Today, Coursera works with more than 200 leading universities and companies to offer courses, specializations, and degrees that are accessible and affordable. Our learners come from every corner of the world, united by a desire to learn, grow, and achieve their goals.
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
-              We believe that education is one of the most powerful forces for good in the world. By connecting people with knowledge and skills, we're helping to create a more equitable and prosperous future for all.
+              We believe that education is one of the most powerful forces for good in the world. By connecting people with knowledge and skills, we&apos;re helping to create a more equitable and prosperous future for all.
             </p>
           </div>
         </div>
@@ -142,15 +138,17 @@ export default function About() {
           <h2 className="text-4xl font-bold text-gray-900 mb-12 text-center">Leadership Team</h2>
           <div className="grid md:grid-cols-4 gap-8">
             {[
-              { name: "Jeff Maggioncalda", role: "CEO & President", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&q=80" },
-              { name: "Daphne Koller", role: "Co-Founder & Chief Product Officer", image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&q=80" },
-              { name: "Andrew Ng", role: "Co-Founder & Chairman", image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop&q=80" },
-              { name: "Leah Belsky", role: "Chief Financial Officer", image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop&q=80" },
+              { name: "Jeff Maggioncalda", role: "CEO & President", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%234F46E5'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='60' fill='white' text-anchor='middle' dominant-baseline='middle'%3EJM%3C/text%3E%3C/svg%3E" },
+              { name: "Daphne Koller", role: "Co-Founder & Chief Product Officer", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%2310B981'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='60' fill='white' text-anchor='middle' dominant-baseline='middle'%3EDK%3C/text%3E%3C/svg%3E" },
+              { name: "Andrew Ng", role: "Co-Founder & Chairman", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23F59E0B'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='60' fill='white' text-anchor='middle' dominant-baseline='middle'%3EAN%3C/text%3E%3C/svg%3E" },
+              { name: "Leah Belsky", role: "Chief Financial Officer", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Ccircle cx='100' cy='100' r='100' fill='%23EF4444'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='60' fill='white' text-anchor='middle' dominant-baseline='middle'%3ELB%3C/text%3E%3C/svg%3E" },
             ].map((member, i) => (
               <div key={i} className="text-center">
-                <img 
+                <Image 
                   src={member.image} 
                   alt={member.name}
+                  width={200}
+                  height={192}
                   className="w-full h-48 object-cover rounded-lg mb-4 bg-gray-200"
                 />
                 <h3 className="text-lg font-bold text-gray-900">{member.name}</h3>
@@ -173,61 +171,7 @@ export default function About() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-200 bg-white">
-        <div className="max-w-7xl mx-auto px-6 py-16">
-          <div className="grid md:grid-cols-5 gap-8 mb-12">
-            <div>
-              <h3 className="text-2xl font-bold text-blue-600 mb-4">Coursera</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Build skills with courses, certificates, and degrees online from world-class universities and companies.
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Coursera</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="/about" className="hover:text-gray-900">About</a></li>
-                <li><a href="#" className="hover:text-gray-900">Careers</a></li>
-                <li><a href="#" className="hover:text-gray-900">Blog</a></li>
-                <li><a href="#" className="hover:text-gray-900">Newsroom</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Learning</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">Courses</a></li>
-                <li><a href="#" className="hover:text-gray-900">Degrees</a></li>
-                <li><a href="#" className="hover:text-gray-900">Certificates</a></li>
-                <li><a href="#" className="hover:text-gray-900">For Enterprise</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Support</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">Help Center</a></li>
-                <li><a href="#" className="hover:text-gray-900">Contact Us</a></li>
-                <li><a href="#" className="hover:text-gray-900">Accessibility</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-gray-900 mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm text-gray-600">
-                <li><a href="#" className="hover:text-gray-900">Terms</a></li>
-                <li><a href="#" className="hover:text-gray-900">Privacy</a></li>
-                <li><a href="#" className="hover:text-gray-900">Cookies</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-200 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-            <p>&copy; 2025 Coursera Inc. All rights reserved.</p>
-            <div className="flex gap-6 mt-4 md:mt-0">
-              <a href="#" className="hover:text-gray-900">Facebook</a>
-              <a href="#" className="hover:text-gray-900">Twitter</a>
-              <a href="#" className="hover:text-gray-900">LinkedIn</a>
-              <a href="#" className="hover:text-gray-900">Instagram</a>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

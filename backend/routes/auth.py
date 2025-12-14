@@ -59,7 +59,7 @@ def login():
     return jsonify({
         'success': True,
         'message': 'Login successful',
-        'user': user.role
+        'user': user.to_dict()
     }), 200
 
 

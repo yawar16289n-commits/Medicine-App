@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import LoginModal from './LoginModal';
 import SignupModal from './SignupModal';
 import Link from 'next/link';
+import UserAvatar from './UserAvatar';
 
 export default function Header() {
   const [showLogin, setShowLogin] = useState(false);
@@ -25,7 +26,7 @@ export default function Header() {
           <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
             
             <Link href="/">
-              <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">COursera</h1>
+              <h1 className="text-2xl font-bold text-blue-600 cursor-pointer">Coursera</h1>
             </Link>
 
             <nav className="hidden md:flex space-x-8 text-sm font-medium">
@@ -83,9 +84,7 @@ export default function Header() {
                 </svg>
               </button>
               <div className="relative group">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold cursor-pointer hover:opacity-90">
-                  {user?.name?.charAt(0).toUpperCase()}
-                </div>
+                <UserAvatar name={user?.name} className="hover:opacity-90" />
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
                   <Link href="/account-profile" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
                     Profile

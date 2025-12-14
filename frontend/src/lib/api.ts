@@ -7,16 +7,35 @@ interface ApiResponse<T = unknown> {
   message?: string;
 }
 
+function getUserIdFromStorage(): string | null {
+  if (typeof window === 'undefined') return null;
+  const user = localStorage.getItem('user');
+  if (!user) return null;
+  try {
+    const userData = JSON.parse(user);
+    return userData.id?.toString() || null;
+  } catch {
+    return null;
+  }
+}
+
 async function apiCall<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<ApiResponse<T>> {
   try {
+    const userId = getUserIdFromStorage();
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      ...(options.headers as Record<string, string>),
+    };
+    
+    if (userId) {
+      headers['X-User-Id'] = userId;
+    }
+
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers,
       ...options,
     });
 

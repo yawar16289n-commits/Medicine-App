@@ -1,12 +1,12 @@
 import CourseCard from "./CourseCard";
 
 const categories = [
-  { id: "1", title: "Data Science", image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=300&h=200&fit=crop&q=80" },
-  { id: "2", title: "Web Development", image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300&h=200&fit=crop&q=80" },
-  { id: "3", title: "Machine Learning", image: "https://images.unsplash.com/photo-1518432031498-7794beeba4c0?w=300&h=200&fit=crop&q=80" },
-  { id: "4", title: "Graphic Design", image: "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=300&h=200&fit=crop&q=80" },
-  { id: "5", title: "Business Strategy", image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=300&h=200&fit=crop&q=80" },
-  { id: "6", title: "AI Engineering", image: "https://images.unsplash.com/photo-1677442d019cecf8ccd410d1638a0218ba90ee301?w=300&h=200&fit=crop&q=80" },
+  { id: "1", title: "Data Science", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%234F46E5' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3EData Science%3C/text%3E%3C/svg%3E" },
+  { id: "2", title: "Web Development", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%2310B981' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3EWeb Dev%3C/text%3E%3C/svg%3E" },
+  { id: "3", title: "Machine Learning", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23F59E0B' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3EML%3C/text%3E%3C/svg%3E" },
+  { id: "4", title: "Graphic Design", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%23EF4444' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3EDesign%3C/text%3E%3C/svg%3E" },
+  { id: "5", title: "Business Strategy", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%238B5CF6' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3EBusiness%3C/text%3E%3C/svg%3E" },
+  { id: "6", title: "AI Engineering", image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='200'%3E%3Crect fill='%2306B6D4' width='300' height='200'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='18' fill='white' text-anchor='middle' dominant-baseline='middle'%3EAI%3C/text%3E%3C/svg%3E" },
 ];
 
 export default function CategoryGrid() {

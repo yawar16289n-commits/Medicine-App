@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 export default function Hero() {
   return (
     <section className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 py-24">
@@ -21,9 +23,11 @@ export default function Hero() {
         </div>
 
         <div className="relative">
-          <img 
-            src="https://images.unsplash.com/photo-1516534775068-bb57d973e671?w=600&h=400&fit=crop&q=80"
+          <Image 
+            src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='400'%3E%3Crect fill='%23ddd' width='600' height='400'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='24' fill='%23999' text-anchor='middle' dominant-baseline='middle'%3ECourse Image%3C/text%3E%3C/svg%3E"
             alt="Learning"
+            width={600}
+            height={400}
             className="rounded-2xl shadow-2xl w-full h-auto"
           />
         </div>

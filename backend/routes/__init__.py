@@ -7,6 +7,7 @@ from routes.auth import auth_bp
 from routes.user import user_bp
 from routes.dashboard import dashboard_bp
 from routes.enrollment import enrollment_bp
+
 api_bp.register_blueprint(courses_bp)
 api_bp.register_blueprint(auth_bp)
 api_bp.register_blueprint(user_bp)

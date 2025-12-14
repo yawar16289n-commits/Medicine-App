@@ -1,7 +1,9 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
+import UserAvatar from '@/app/components/UserAvatar';
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,9 +37,7 @@ export default function Dashboard() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
               </svg>
             </button>
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold cursor-pointer">
-              U
-            </div>
+            <UserAvatar />
           </div>
         </div>
       </header>
@@ -69,29 +69,31 @@ export default function Dashboard() {
                 title: "Python for Data Science",
                 instructor: "University of Michigan",
                 progress: 45,
-                image: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=300&h=170&fit=crop&q=80"
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='170'%3E%3Crect fill='%234F46E5' width='300' height='170'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='white' text-anchor='middle' dominant-baseline='middle'%3EPython Course%3C/text%3E%3C/svg%3E"
               },
               {
                 id: "2",
                 title: "Web Development with React",
                 instructor: "Meta",
                 progress: 65,
-                image: "https://images.unsplash.com/photo-1633356122544-f134324ef6db?w=300&h=170&fit=crop&q=80"
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='170'%3E%3Crect fill='%2310B981' width='300' height='170'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='white' text-anchor='middle' dominant-baseline='middle'%3EReact Course%3C/text%3E%3C/svg%3E"
               },
               {
                 id: "3",
                 title: "Machine Learning Specialization",
                 instructor: "DeepLearning.AI",
                 progress: 30,
-                image: "https://images.unsplash.com/photo-1518432031498-7794beeba4c0?w=300&h=170&fit=crop&q=80"
+                image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='170'%3E%3Crect fill='%23F59E0B' width='300' height='170'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='16' fill='white' text-anchor='middle' dominant-baseline='middle'%3EML Course%3C/text%3E%3C/svg%3E"
               }
             ].map((course) => (
               <Link key={course.id} href={`/course/${course.id}`}>
                 <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden cursor-pointer group">
                 <div className="relative">
-                  <img 
+                  <Image 
                     src={course.image}
                     alt={course.title}
+                    width={400}
+                    height={160}
                     className="w-full h-40 object-cover"
                   />
                   <div className="absolute top-3 right-3 bg-white rounded-full p-2 shadow-md cursor-pointer">

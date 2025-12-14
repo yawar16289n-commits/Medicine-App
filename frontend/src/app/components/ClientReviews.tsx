@@ -1,3 +1,6 @@
+import Image from 'next/image';
+import StatsSection from './StatsSection';
+
 export default function ClientReviews() {
   const reviews = [
     {
@@ -6,7 +9,7 @@ export default function ClientReviews() {
       company: "Google",
       rating: 5,
       quote: "Coursera helped me transition into a tech career. The courses are high quality and the instructors are experts in their fields.",
-      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&q=80"
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%234F46E5'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='40' fill='white' text-anchor='middle' dominant-baseline='middle'%3ESC%3C/text%3E%3C/svg%3E"
     },
     {
       name: "James Rodriguez",
@@ -14,7 +17,7 @@ export default function ClientReviews() {
       company: "Amazon",
       rating: 5,
       quote: "The structured learning paths on Coursera made it easy for me to upskill and get promoted. Highly recommend!",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&q=80"
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2310B981'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='40' fill='white' text-anchor='middle' dominant-baseline='middle'%3EJR%3C/text%3E%3C/svg%3E"
     },
     {
       name: "Emily Watson",
@@ -22,7 +25,7 @@ export default function ClientReviews() {
       company: "Microsoft",
       rating: 5,
       quote: "The certificates from Coursera are recognized by major employers. It's a great investment in your future.",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&q=80"
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23F59E0B'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='40' fill='white' text-anchor='middle' dominant-baseline='middle'%3EEW%3C/text%3E%3C/svg%3E"
     },
     {
       name: "Marcus Johnson",
@@ -30,7 +33,7 @@ export default function ClientReviews() {
       company: "Meta",
       rating: 5,
       quote: "Learning at my own pace with Coursera allowed me to balance work and education perfectly. Amazing platform!",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&q=80"
+      image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23EF4444'/%3E%3Ctext x='50%25' y='50%25' font-family='Arial' font-size='40' fill='white' text-anchor='middle' dominant-baseline='middle'%3EMJ%3C/text%3E%3C/svg%3E"
     }
   ];
 
@@ -60,13 +63,15 @@ export default function ClientReviews() {
               </div>
 
               <p className="text-gray-700 text-lg mb-6 italic">
-                "{review.quote}"
+                &quot;{review.quote}&quot;
               </p>
 
               <div className="flex items-center gap-4">
-                <img 
+                <Image 
                   src={review.image}
                   alt={review.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover"
                 />
                 <div>
@@ -79,20 +84,14 @@ export default function ClientReviews() {
           ))}
         </div>
 
-        <div className="mt-16 grid md:grid-cols-3 gap-8">
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">150M+</div>
-            <p className="text-gray-600">Active learners</p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">95%</div>
-            <p className="text-gray-600">Recommend Coursera</p>
-          </div>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">89%</div>
-            <p className="text-gray-600">Report career benefits</p>
-          </div>
-        </div>
+        <StatsSection 
+          className="mt-16"
+          stats={[
+            { value: '150M+', label: 'Active learners' },
+            { value: '95%', label: 'Recommend Coursera' },
+            { value: '89%', label: 'Report career benefits' }
+          ]} 
+        />
 
       </div>
     </section>

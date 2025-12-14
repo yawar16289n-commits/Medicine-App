@@ -133,21 +133,9 @@ function ProfileContent() {
                 <a href="#" className="block px-4 py-3 text-blue-600 bg-blue-50 rounded-lg font-medium border-l-4 border-blue-600">
                   General Information
                 </a>
-                <a href="#" className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg font-medium">
-                  Account & Password
-                </a>
-                <a href="#" className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg font-medium">
-                  Email & SMS
-                </a>
-                <a href="#" className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg font-medium">
-                  Privacy Settings
-                </a>
-                <a href="#" className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg font-medium">
-                  Cookies
-                </a>
-                <a href="#" className="block px-4 py-3 text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg font-medium">
-                  Connected Accounts
-                </a>
+                <Link href={`/profile/${user?.id}`} className="block px-4 py-3 text-green-700 bg-green-50 hover:bg-green-100 rounded-lg font-medium mt-4">
+                  View Public Profile
+                </Link>
               </nav>
             </div>
           </div>
