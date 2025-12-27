@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "formula": "Ibuprofen",
+    "medicine_id": "MED0001",
+    "name": "MediTrack-Test",
+    "stock": 1,
+    "forecast": -1,
+    "stock_status": "Available"
+  },
+  {
+    "id": 2,
+    "formula": "Ibuprofen",
+    "medicine_id": "MED0002",
+    "name": "MediTrack-Test",
+    "stock": 1,
+    "forecast": -1,
+    "stock_status": "Available"
+  },
+  {
+    "id": 3,
+    "formula": "Ibuprofen",
+    "medicine_id": "MED0003",
+    "name": "MediTrack-Test",
+    "stock": 1,
+    "forecast": -1,
+    "stock_status": "Available"
+  },
+  {
+    "id": 4,
+    "formula": "asc",
+    "medicine_id": "MED0004",
+    "name": "MediTrack-Test",
+    "stock": 1,
+    "forecast": -1,
+    "stock_status": "Available"
+  }
+]
