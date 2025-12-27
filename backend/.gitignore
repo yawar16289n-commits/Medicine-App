@@ -1,0 +1,15 @@
+﻿# Backend .gitignore
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+env/
+venv/
+ENV/
+instance/
+.env
+*.log
+*.db
+*.sqlite
+migrations/
