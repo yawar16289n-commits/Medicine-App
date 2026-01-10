@@ -512,7 +512,7 @@ function ForecastDetailPage() {
                         <div>
                           <h3 className="text-xl font-bold text-gray-900">{medicine.brandName}</h3>
                           <p className="text-gray-600 text-sm">
-                            {medicine.medicineId} • {medicine.dosageStrength || 'N/A'}
+                            {medicine.id} • {medicine.dosageStrength || 'N/A'}
                           </p>
                         </div>
                       </div>
@@ -545,7 +545,7 @@ function ForecastDetailPage() {
                         <div className="grid md:grid-cols-4 gap-4 mb-6">
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1">Medicine ID</p>
-                            <p className="text-lg font-bold text-gray-900">{medicine.medicineId}</p>
+                            <p className="text-lg font-bold text-gray-900">{medicine.id}</p>
                           </div>
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1">Therapeutic Class</p>
@@ -571,15 +571,7 @@ function ForecastDetailPage() {
                           </div>
                         </div>
 
-                        {/* Graph Placeholder */}
-                        <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-                          <h6 className="font-bold text-blue-900 mb-2">📊 Medicine-Specific Graph</h6>
-                          <p className="text-sm text-blue-800">
-                            Sales and forecast graph for {medicine.brandName} will be displayed here according to the selected date range 
-                            {historicalRange.enabled && ` (Historical: ${historicalRange.start || 'start'} to ${historicalRange.end || 'end'})`}
-                            {!historicalRange.enabled && ` (Forecast only: ${forecastRange} days)`}.
-                          </p>
-                        </div>
+
                       </div>
                     )}
                   </div>

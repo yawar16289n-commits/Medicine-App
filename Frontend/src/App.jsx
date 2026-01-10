@@ -42,7 +42,7 @@ function RequireAuth({ children, allowedRoles = null }) {
 
 function AppLayout({ children }) {
   const location = useLocation();
-  const hideNavbarOnPaths = ['/login', '/'];
+  const hideNavbarOnPaths = ['/login', '/', '/infographic'];
   const shouldShowNavbar = !hideNavbarOnPaths.includes(location.pathname);
 
   return (

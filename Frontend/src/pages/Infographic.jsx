@@ -4,10 +4,20 @@ import { useNavigate } from 'react-router-dom';
 export default function Infographic() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
-  const [activeSection, setActiveSection] = useState('home');
+  const [activeSection, setActiveSection] = useState('');
 
   const scrollToSection = (sectionId) => {
     setActiveSection(sectionId);
+    
+    // Switch to appropriate tab based on section
+    if (sectionId === 'features') {
+      setActiveTab('overview');
+    } else if (sectionId === 'how-it-works') {
+      setActiveTab('workflow');
+    } else if (sectionId === 'about') {
+      setActiveTab('tech');
+    }
+    
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -183,7 +193,6 @@ export default function Infographic() {
         { title: 'Interactive Charts', description: 'Visual demand trends' },
         { title: 'Demand Analysis', description: 'Historical pattern analysis' },
         { title: 'Weather Analytics', description: 'Weather impact visualization' },
-        { title: 'Custom Reports', description: 'Generate detailed reports' }
       ]
     }
   ];
@@ -191,7 +200,7 @@ export default function Infographic() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white bg-opacity-95 backdrop-blur-md shadow-md z-40">
+      <nav className="fixed top-0 w-full bg-white bg-opacity-95 backdrop-blur-md shadow-md z-40 mb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
@@ -203,40 +212,32 @@ export default function Infographic() {
 
             <div className="hidden md:flex items-center space-x-8">
               <button
-                onClick={() => scrollToSection('home')}
-                className={`font-medium transition-colors ${
-                  activeSection === 'home' ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600'
-                }`}
+                onClick={() => navigate('/')}
+                className="font-medium text-gray-600 hover:text-primary-600 transition-colors"
               >
                 Home
               </button>
               <button
-                onClick={() => scrollToSection('features')}
-                className={`font-medium transition-colors ${
-                  activeSection === 'features' ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600'
-                }`}
+                onClick={() => navigate('/')}
+                className="font-medium text-gray-600 hover:text-primary-600 transition-colors"
               >
                 Features
               </button>
               <button
-                onClick={() => scrollToSection('how-it-works')}
-                className={`font-medium transition-colors ${
-                  activeSection === 'how-it-works' ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600'
-                }`}
+                onClick={() => navigate('/')}
+                className="font-medium text-gray-600 hover:text-primary-600 transition-colors"
               >
                 How It Works
               </button>
               <button
-                onClick={() => scrollToSection('about')}
-                className={`font-medium transition-colors ${
-                  activeSection === 'about' ? 'text-primary-600' : 'text-gray-600 hover:text-primary-600'
-                }`}
+                onClick={() => navigate('/')}
+                className="font-medium text-gray-600 hover:text-primary-600 transition-colors"
               >
                 About Us
               </button>
               <button
                 onClick={() => navigate('/infographic')}
-                className="font-medium text-gray-600 hover:text-primary-600 transition-colors"
+                className="font-medium text-primary-600 transition-colors"
               >
                 Infographic
               </button>
@@ -262,7 +263,7 @@ export default function Infographic() {
       </nav>
 
       {/* Hero Section */}
-      <section className="py-16 bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-500 text-white">
+      <section id="home" className="pt-24 pb-16 bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-500 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6">
             {systemOverview.title}
@@ -298,7 +299,7 @@ export default function Infographic() {
       </section>
 
       {/* Content Sections */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div id="features" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         
         {/* Overview Tab */}
         {activeTab === 'overview' && (
@@ -360,7 +361,7 @@ export default function Infographic() {
 
         {/* Workflow Tab */}
         {activeTab === 'workflow' && (
-          <div className="space-y-12 animate-fade-in">
+          <div id="how-it-works" className="space-y-12 animate-fade-in">
             <div className="text-center">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">System Workflow</h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
@@ -579,7 +580,7 @@ export default function Infographic() {
 
         {/* Tech Stack Tab */}
         {activeTab === 'tech' && (
-          <div className="space-y-12 animate-fade-in">
+          <div id="about" className="space-y-12 animate-fade-in">
             <div className="text-center">
               <h2 className="text-4xl font-bold text-gray-900 mb-4">Technology Stack</h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">

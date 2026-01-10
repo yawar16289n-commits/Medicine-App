@@ -142,13 +142,24 @@ export default function Dashboard() {
               </div>
             </a>
             
-            <a href="/forecast" className="flex items-center p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all">
-              <span className="text-2xl mr-3">🤖</span>
-              <div>
-                <p className="font-semibold">AI Forecasting</p>
-                <p className="text-sm text-blue-100">Predict demand trends</p>
-              </div>
-            </a>
+            {/* Show Inventory for data_operator, Forecast for admin/analyst */}
+            {user?.role === 'data_operator' ? (
+              <a href="/inventory" className="flex items-center p-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg hover:shadow-lg transition-all">
+                <span className="text-2xl mr-3">📦</span>
+                <div>
+                  <p className="font-semibold">Manage Inventory</p>
+                  <p className="text-sm text-purple-100">Update stock levels</p>
+                </div>
+              </a>
+            ) : (
+              <a href="/forecast" className="flex items-center p-4 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:shadow-lg transition-all">
+                <span className="text-2xl mr-3">🤖</span>
+                <div>
+                  <p className="font-semibold">AI Forecasting</p>
+                  <p className="text-sm text-blue-100">Predict demand trends</p>
+                </div>
+              </a>
+            )}
             
             <a href="/weather" className="flex items-center p-4 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-lg hover:shadow-lg transition-all">
               <span className="text-2xl mr-3">🌤️</span>
