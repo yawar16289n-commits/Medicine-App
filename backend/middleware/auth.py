@@ -58,17 +58,21 @@ def require_auth(f):
     return decorated_function
 
 
-def require_role(*allowed_roles):
+def require_role(allowed_roles):
     """
     Decorator to require specific role(s) for endpoints.
     
     Args:
-        *allowed_roles: Variable number of role strings (e.g., 'admin', 'analyst')
+        allowed_roles: List of role strings or single role string (e.g., ['admin', 'analyst'] or 'admin')
     
     Usage:
+        @require_role(['admin', 'analyst'])
         @require_role('admin')
-        @require_role('admin', 'analyst')
     """
+    # Normalize to list
+    if isinstance(allowed_roles, str):
+        allowed_roles = [allowed_roles]
+    
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):

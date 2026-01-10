@@ -1,0 +1,762 @@
+MediInSight: AI-Driven Medicine Demand Predictor 
+A thesis submitted
+By
+Syed Zahab Ali (16184)
+Wali Muhammad (16199)
+Muhammad Yawar (16289)
+Faseeh-ur-Rehman (16612)
+To
+Department of Computer Science
+
+In partial fulfillment of
+		The requirement for the
+Degree of
+BACHELOR OF COMPUTER SCIENCE
+
+This thesis has been
+Accepted by the faculty
+
+FACULTY OF ENGINEERING SCIENCE AND TECHNOLOGY
+
+
+
+Sabeeh Ahmed 
+Supervisor
+
+
+Generative AI and Originality Declaration
+
+We, the following students, solemnly declare that the work presented in our undergraduate project, titled “MediInSight: AI-Driven Medicine Demand Predictor”, is solely our work with no significant contribution from any other person or Generative AI Tools. Small contribution/help wherever taken has been duly acknowledged/cited and that complete project has been written by us in accordance with the latest plagiarism policy declared by HEC and our respective university in-line with the policy for use of Generative AI Tools.
+
+We understand the zero-tolerance policy of the HEC and IQRA University towards plagiarism. Therefore, we as Authors of the above titled project declare that no portion of our project has been plagiarized and any material used as reference is properly referred/cited.
+
+We undertake that if we are found guilty of any plagiarism in the above titled project even after award of degree, the University reserves the right to withdraw/revoke our degrees and that HEC and the University have the right to publish our names on the HEC/University Website on which names of students are placed who submitted plagiarized projects.
+
+
+Acknowledgement
+
+I extend my sincere gratitude to Sir Sabeeh Ahmed for his invaluable guidance and mentorship throughout the entire course of this project. I want to extend my appreciation to IQRA University and family, whose unwavering support has been a pillar throughout this transformative journey. This project's success wouldn't have been possible without the collective effort and encouragement from those around me. I extend my thanks to all who have contributed to this achievement.
+The collaborative spirit within the AR community has been an invaluable asset, shaping my perspective on technology and fostering continuous growth. Special recognition goes to the myriad resources that have served as guiding lights in navigating the intricate landscape of AR development.
+As I reflect on this journey, I am filled with gratitude for the numerous individuals and entities that have played a part in shaping the outcome. The lessons learned, challenges overcome, and milestones achieved are a testament to the collective effort and collaboration that underpins successful projects.
+In conclusion, I express my deep appreciation to everyone who has been a part of this journey, directly or indirectly. Your contributions, support, and encouragement have made a lasting impact, and I am truly grateful for the collaborative spirit that has defined this project from inception to completion.
+
+
+
+
+
+
+
+
+Contents
+Abstract
+Accurate demand forecasting for medicines optimizes inventory, reduces stock-outs, and ensures better responsiveness in health care. In this project, with pharmaceutical data, a hybrid intelligent system is proposed by incorporating weather and other environmental variables into the model to provide an improved predictive performance over traditional approaches using only historical sales-based models. This proposed model will be holistic in nature, considering climatic factors-temperature, humidity, rainfall-that eventually shape the seasonal prevalence of diseases and, thereby, medicine consumption.
+The architecture is composed of three major components: a Data Integration and Preprocessing Module that fuses historical sales and weather datasets; a Forecasting Engine utilizing AI and machine learning techniques like Neural Prophet Model, Random Forest, XGBoost, and LSTM networks to model both linear and nonlinear dependencies; and a Visualization Dashboard that displays the regional and temporal predictions as interactive charts. Comparative analyses between weather-independent and weather-integrated models will be conducted to assess improvements in forecast accuracy and model interpretability.
+Integrating data analytics with climate-aware forecasting, this work provides a practical framework for pharmaceutical distributors, healthcare providers, and policymakers. The result will be to facilitate proactive inventory management, enhance supply chain resilience, and promote evidence-based decision-making in the face of seasonal and environmental variability.
+The main goal of this project is to deliver a comprehensive solution that enables efficient forecasting of medical needs and disease trends. It envisages intelligent data analysis and AI-driven predictions as the means toward meeting this objective by reducing medicine shortages, enabling timely interventions, and strengthening overall responsiveness in health systems against seasonal and regional variations.
+
+SDGs Feedback by Students
+
+
+
+
+
+
+CCP Feedback by Students
+
+PBL Feedback by Student
+
+
+
+
+
+
+
+
+CHAPTER # 1
+Introduction
+
+
+
+
+
+
+
+
+
+
+
+
+Introduction
+Background
+The pharmaceutical and healthcare industries have not been able to respond adequately to unpredictable demand for medicines due to seasonal changes in disease patterns. These demand fluctuations directly impact patient care and public health outcomes, creating critical challenges for medical providers. Seasonal factors like temperature, humidity, and rainfall predominantly make a difference in the demand for certain medicines, while traditional methods of forecasting are incapable of using such dynamic environmental factors. Current systems lack the analytical capability to correlate weather patterns with medicine requirements, leading to inefficient resource allocation.
+Many healthcare providers and pharmacies still have to rely on historical sales data and manual estimations that do not take into account real-time weather influences. Due to this fact, medical inventories frequently suffer from such problems as overstocking or shortages, especially during seasonal outbreaks of weather-sensitive illnesses like flu, allergies, or some types of respiratory infections. This inefficiency not only affects healthcare delivery but also results in significant financial losses due to expired medicines or emergency procurement.
+Artificial Intelligence and machine learning now provide a modern solution to this challenge. By leveraging the historical sales of medicines against seasonal weather, AI models identify subtle patterns and make far more accurate predictions about future demands. These systems enable timely, informed decisions that help ensure adequate supplies of lifesaving medicines when and where they are needed. The integration of machine learning algorithms with weather analytics represents a paradigm shift in healthcare inventory management.
+The following project presents a seasonal medicine demand forecasting system based on artificial intelligence that uses combined sales data with weather parameters. The application leverages machine learning to identify trends, take proactive planning measures, and ensure wastage reduction for healthcare stakeholders in order to maintain better responsiveness in public health, while only considering seasonal influences and not regional or supply-chain factors. This approach aims to transform how healthcare providers anticipate and address seasonal medicine requirements through data-driven insights.
+Problem Statement
+The accurate prediction of medicine demand during different seasonal periods remains a persistent challenge within the healthcare and pharmaceuticals industries. Traditional forecasting methods often rely on historical data that is out-of-date, generalized assumptions, or manual inventory reviews which cannot capture the dynamic nature of health trends influenced by seasonal variations. The results are critical inefficiencies: medicine shortages during peak seasonal demand and overstocking during off-peak periods, compromising both patient care and resource management.
+Seasonal health patterns are influenced by various factors, including climate conditions, weather changes, and historical sales data during specific seasonal periods. In practice, however, these variables are rarely combined in real-time analytics with the aid of intelligent systems. Lacking a comprehensive AI solution, healthcare providers and pharmaceutical suppliers are not equipped to anticipate seasonal changes in demand or emerging health risks associated with weather patterns.
+What is required to overcome this challenge is a predictive application that integrates multiple data sources and deploys artificial intelligence to generate accurate seasonal forecasts. Accordingly, season-specific planning and distribution of medicines can be done in a timely fashion, improving healthcare delivery and helping to manage seasonal demand fluctuations effectively.
+Objectives
+The primary objective of this project is to develop an intelligent, accurate, and ethically responsible forecasting system that uses Artificial Intelligence to predict seasonal trends in medicine sales and potential disease outbreaks. The application aims to support better public health planning, efficient pharmaceutical distribution, and timely interventions by delivering data-driven insights through intuitive visualizations such as heatmaps and graphs. The key objectives are as follows:
+
+
+Train and Apply Predictive AI Models: 
+The goal of this objective is to develop and train predictive machine learning models capable of analyzing historical data and generating forecasts for medicine demand and disease outbreaks. The models will be trained on curated prototype datasets, which include factors such as seasonal variations, regional health patterns, and historical sales data. Various machine learning algorithms, including regression models, decision trees, and time-series analysis, will be evaluated and fine-tuned to ensure accuracy and robustness. Once trained, the models will be applied to predict future medicine needs and identify regions at high risk for disease outbreaks, enabling proactive healthcare planning. These predictions will form the foundation for data-driven decision-making in pharmaceutical supply chains and public health interventions.
+Implement Advanced Data Collection Techniques: 
+To simulate realistic forecasting conditions, utilizing prototype datasets representative of historical medical sales and seasonal disease trends. These curated datasets serve as a foundation to train and test AI models in the absence of real-time data, ensuring the system architecture will be ready for future integration of live inputs.
+Summarize Retrieved Data:
+Once the predictive AI models have generated forecasts, it is crucial to present the results in a way that is both clear and actionable. This objective aims at summarizing the retrieved data by turning complex outputs from AI models into concise insights. The data summary shall include key metrics such as forecasted medicine demand, periods of seasonal risk, and weather-driven trends. These summaries will be provided using dynamic visualizations like trend graphs, seasonal analysis charts, and diagrams of forecasting, making the findings easy to interpret for healthcare professionals, pharmaceutical distributors, and policymakers alike. The goal is to provide a streamlined overview that facilitates quick decision-making and resource allocation.
+Enhance User Experience through Intuitive UI/UX Design:
+The goal of this module is to design an intuitive and user-friendly interface that is accessible to a wide range of users: health professionals, pharmaceutical distributors, and policymakers. The UX will be streamlined, making it easy for a user to navigate between the different features with ease and speed to relevant insights. Key features will include:
+Interactive Dashboards: Visual representations of data, such as heatmaps and graphs, that allow users to easily explore medicine demand forecasts and disease risk patterns across regions and seasons.
+Real-Time Forecast Display: A clear, real-time display of predictions and trends, enabling users to see up-to-date medicine needs and regional disease outbreaks at a glance.
+Filter and Search Functions: Tools that allow users to filter predictions based on location, season, or disease type, helping them focus on the most relevant data for their needs.
+Alerts and Notifications: A system for notifying users about significant trends or changes in medicine demand or disease outbreaks, allowing for quick responses and action.
+Ensure Security, Privacy, and Ethical Data Handling: 
+Given the sensitivity of healthcare data, it is very important to ensure that data security, privacy, and ethical treatment are guaranteed. The objective is thus to provide strong security measures in order to protect sensitive data, ensuring that all information is stored, processed, and transmitted securely. It should follow data privacy regulations such as GDPR or local healthcare data protection standards, so that it is compliant. Ethical AI practices would be followed, maintaining transparency in the way predictions are made, with the avoidance of bias in the forecast models. Privacy features, including data anonymization, encryption, and user consent protocols, will be part of the system to protect the privacy of individuals and help gain their trust. This ensures that the application is responsible in its use of data and reliable in the results it presents.
+
+
+
+
+
+
+
+
+CHAPTER # 2
+Literature Review
+
+
+
+
+
+
+
+
+
+
+
+
+Literature Review
+  Introduction
+The rapid digital transformation of the healthcare industry, coupled with the increasing unpredictability of seasonal and climate-driven disease patterns, has intensified the need for intelligent and data-driven medicine forecasting systems. Traditional pharmaceutical demand estimation methods—largely dependent on historical sales data or manual judgment—are often insufficient to capture the complex, multi-factor dynamics influencing medicine consumption. These dynamics include seasonal illnesses, climatic variations, epidemiological trends, and regional population behavior.
+Recent advancements in Artificial Intelligence (AI), Machine Learning (ML), and time-series analysis have enabled the development of intelligent forecasting systems capable of integrating heterogeneous data sources such as historical sales records, weather variables, and real-time analytics. Such systems not only improve prediction accuracy but also support proactive decision-making within pharmaceutical supply chains and public health infrastructures (Zhang et al., 2021).
+This research focuses on the design of a weather-aware Medical Forecasting System that addresses challenges such as seasonal medicine shortages, inaccurate stock planning, and lack of integrated pharmaceutical intelligence. This chapter reviews the existing literature related to AI-driven medicine demand forecasting, time-series and climate-integrated prediction models, pharmaceutical authentication through barcode technologies, healthcare data summarization, system security and privacy, and ethical considerations
+
+
+
+Medicine Demand Forecasting and Recognition
+Demand forecasting for medicines is a crucial aspect of successful healthcare supply chain administration. Various researchers have employed time series, as well as machine learning algorithms, for the prediction of medicine demand, disease trends, and medicine sales patterns. ARIMA, Prophet, Random Forest, LSTM, and Neural Prophet have proved to be effective for capturing the time series characteristics of the data, as stated by Taylor and Letham (2018).
+Prophet has gained widespread adoption due to its ability to decompose time-series data into trend, seasonality, and holiday effects, making it suitable for healthcare environments characterized by seasonal disease cycles (Ghosh & Banerjee, 2020). More recently, Neural Prophet has extended these capabilities by integrating neural networks with classical time-series decomposition, enabling improved handling of non-linear patterns and anomaly detection. Literature indicates that Neural Prophet is particularly effective in identifying unexpected demand spikes that may indicate disease outbreaks or abnormal consumption patterns.
+Several studies emphasize that forecasting accuracy improves significantly when models incorporate external variables rather than relying solely on historical sales data. However, despite these advancements, many existing systems lack real-time adaptability and fail to provide actionable insights such as alternative medicine recommendations or automated stock adjustment alerts.
+
+
+
+
+Weather-Influenced Disease and Medicine Prediction Models
+The relationship between weather conditions and disease prevalence has been extensively documented in healthcare research. Climatic factors such as temperature, humidity, and rainfall play a significant role in influencing the spread of infectious and seasonal diseases including influenza, dengue, respiratory infections, allergies, and heat-related disorders (Mutheneni et al., 2017).
+Recent studies demonstrate that integrating meteorological data into time-series and machine learning models substantially improves prediction performance. Li et al. (2022) showed that climate-aware models enable early detection of disease outbreaks and seasonal surges. Similarly, Rahman et al. (2021) proposed meteorology-based disease prediction frameworks that outperform traditional historical-only approaches
+
+Data Summarization and Visualization in Healthcare Analytics
+Healthcare systems generate vast volumes of heterogeneous data that must be transformed into meaningful insights for effective decision-making. Data summarization techniques such as clustering, grouping, aggregation, and feature extraction are widely used to identify patterns in medicine usage, seasonal trends, and regional consumption behavior (Chen et al., 2020).
+Visualization tools, such as dashboards, heatmaps, and time-series graphs, have been instrumental in enhancing the interpretability and usability of healthcare analytics systems (Wang & Alexander, 2019). Summarized data in pharmaceutical forecasting empowers the identification of top-demand medicines, regional shortages, seasonal surges, and anomaly patterns that are going to be important for inventory planning, manufacturing coordination, and public health preparedness.
+Security and Privacy Considerations
+Healthcare and pharmaceutical data falls into sensitive topics. Therefore, the data must strictly adhere to global data protection regulations such as GDPR and HIPAA. Encryption, anonymization, role-based access, and multi-factor authentication are, of course, all key ingredients of security requirements within a healthcare system, as evidenced by Hernandez & Kim (2021). Besides the challenges of privacy exposure, serious threats to healthcare operations emanate from data integrity and system security based on unauthorized access, tampering, and cyberattacks. Aldekhail et al. (2020) raise the importance of secure pipelines of data, encrypted storage, audit logs, and API access control. Thus, modern AI-driven systems should embed appropriate security and privacy measures across the data lifecycle.
+
+Ethical Implications and Future Directions
+As AI-driven decision-making systems become increasingly prevalent in healthcare, ethical considerations have gained significant importance. Research identifies fairness, transparency, explainability, and avoidance of algorithmic bias as core principles of responsible AI (Floridi & Cowls, 2019). Biased datasets or opaque models may lead to unfair medicine recommendations or distorted pharmaceutical markets. Scholars recommend the adoption of explainable AI techniques, ethical auditing mechanisms, and transparency reports to ensure trust and accountability in healthcare AI systems (Raji et al., 2020). Ethical system design is particularly critical in medicine forecasting, where decisions can directly impact patient health and public welfare
+
+Literature Analysis
+
+An extensive review of the literature reveals key insights and existing gaps. While traditional models focus separately on either demand forecasting or product authentication, few systems combine both aspects for a unified pharmaceutical intelligence platform. Our project addresses this by incorporating:
+Time-Series Forecasting using Neural Prophet
+Real-time Data Ingestion from IoT barcode scanners at pharmacies
+Recommendation System for alternative medicines
+Interactive Graphs comparing historical vs forecasted sales
+Outbreak Detection using anomaly modeling
+
+These components together address real-world challenges such as understocking, overstocking, and distribution of counterfeit drugs. By summarizing usage patterns and predicting needs per region and season, the system ensures preparedness. Its ability to adapt under uncertain conditions, such as new illnesses or unexpected demand surges, makes it a critical asset for public health infrastructure. As AI-driven healthcare advances, hybrid platforms like ours will set a precedent for scalable and secure pharmaceutical forecasting and validation. 
+
+
+
+
+
+
+
+
+
+CHAPTER # 3
+Methodology
+
+
+
+
+
+
+
+
+
+
+Methodology
+  Functional Requirements
+
+User Authentication and Role Management:
+
+The system shall provide secure login functionality for different user roles (Administrator, Data Analyst). Each role shall have specific permissions - administrators can upload/modify datasets, analysts can view forecasting results, and pharmacists can access basic reports. This ensures data security and controlled access from the outset.
+
+ Data Ingestion (CSV/API):
+The system should collect and integrate historical medicine sales data and weather data from multiple sources.  While weather data, such as temperature, humidity, and rainfall, can be retrieved from public APIs or uploaded via CSV files, sales data can be imported from a database that is connected.  This guarantees that the forecasting model gets complete and accurate input data for dependable demand prediction and seasonal trend analysis.
+
+Data Preprocessing (Cleaning, Normalization):
+All gathered datasets will be automatically preprocessed by the system prior to model training.  Managing missing or duplicate entries, identifying outliers, normalizing numerical values, encoding categorical variables, and synchronizing time-series between weather and sales data are all included in this.  Checks for data quality will guarantee consistency for accurate forecasting.
+
+
+AI Model Training and Forecasting:
+An AI-based forecasting model that can account for seasonal and weather-dependent demand variations should be trained by the system using preprocessed data.  The model should learn from past trends and environmental factors to predict future demand for each medicine type.  For additional reporting and visualization, forecast results must be kept in the database.
+
+Interactive Visualization and Dashboard
+The system will provide interactive dashboards with detailed graphical representations of the forecasting insights. These visualizations include comparisons of past and projected sales, line graphs and heatmaps that analyze seasonal trends, correlation charts featuring weather impact, and demand distribution by region. Consequently, stakeholders will be able to make decisions based on data and intuitively analyze patterns.
+
+Recommenation System:
+The system shall make an inventory management recommendation based on demand forecasts. These recommendations will optimize stock levels based on matching predicted demand against current inventory positions with the aim of avoiding either stock shortages or excess stock within available lead times and operational constraints.
+
+Reporting:
+The system shall automatically create and schedule robust reports that summarize key forecasting outputs, such as comparative analyses of predicted versus actual demand, model performance metrics, seasonal trend patterns, and inventory recommendations. These consolidated documents will emphasize significant anomalies and data-driven insights to enable stakeholders to make informed strategic decisions.
+
+ Non Functional Requirements
+Performance: 
+It needs to be ensured that the system delivers responsive performance for all functions, with the data processing and forecasting operations completing within practical timeframes. Efficient algorithms and optimized data pipelines ensure timely generation of insights without compromising usability.
+
+Scalability: 
+The architecture should support increasing data volumes and an extended operational scope. It addresses the growing number of products and historical records through scalable storage solutions and parallel processing, which allows it to keep performance consistent as the dataset grows.
+
+Accuracy: 
+Forecast accuracy is another critical quality benchmark. Such predictions should undergo verification techniques to ensure that they meet established standards of reliability through mechanisms for continuous monitoring to identify deviations in accuracy and their causes.
+
+Cross Platform Compatibility: 
+The solution shall function across heterogeneous computing environments. Web-based components shall maintain functionality across major browsers and operating systems, while backend processes support standard hardware configurations to assure broad accessibility.
+
+Reliability: 
+The system offers robust operational reliability through its comprehensive handling of errors, systematic logging, and backup protocols. The system must preserve data integrity during disruptions and ensure secure access to historical records for consistent performance.
+
+Response Time: 
+The system should be responsive concerning user interactions, queries, and requests for visualizations. Forecasting results need to be provided within acceptable time frames, considering even large sets of data, to enable timely decision-making.
+Algorithms
+Data Collection
+Import historical sales data from structured sources, such as CSV files or database exports. 
+ Retrieve supplementary weather data through CSV uploads or API integrations.
+Data Preparation 
+Address data quality issues by performing imputation and handling outliers.
+Normalize numerical features and encode categorical variables.
+Align all datasets to consistent time intervals to make them suitable for forecasting.
+Model Training
+Set up a forecasting model that considers trend, seasonality, and weather influences.
+Incorporate external factors such as weather variables and holidays as model inputs.
+Train on historical patterns across medicines considering seasonal variations.
+Forecasting
+Generate demand predictions for specified future horizons
+Store outputs in structured formats for use in downstream applications or visualization
+Recommendation Engine
+Compare forecasts with inventory levels.  
+Flag products below reorder thresholds  
+Calculate optimum order quantities
+Visualization & Reporting
+Update interactive dashboards with analytical views showing historical versus predicted sales and seasonal trends.
+Prepare periodic performance reports highlighting key metrics and forecast accuracy.
+Highlight critical findings to support decision-making
+Error Handling
+Validate data inputs/formats  
+Retry failed API/data transmissions  
+Fallback to cached data during outages
+Notify the user with detailed error messages and suggestion for resolution
+
+
+Hardware Requirements:
+Processor (CPU): Intel Core i5 5th generation or equivalent
+RAM: 4 GB or higher
+Storage: 256 GB HDD or 256 GB SSD for faster access
+
+
+Software Requirements:
+Use Window 10 (x64 bits or x86 bits)
+
+
+
+
+
+
+
+
+
+
+
+CHAPTER # 4
+User Interface
+
+
+
+
+
+
+
+
+User Interface
+Application User Interface
+
+4.1.1 Home Page: 
+
+
+
+Figure 4.1.1
+The homepage serves as the primary entry point to the MedInsight platform. It features a clean and professional navigation bar, providing immediate access to key sections: Home, Features, How It Works, About Us, and Sign In. Centrally, the page highlights the platform's core value proposition for AI-driven medicine forecasting. Primary call-to-action buttons (Request Access and Learn More) are prominently placed to guide user engagement.
+
+
+
+
+
+
+
+
+
+Features Overview Page:
+ 
+
+Figure 4.1.2
+Each feature is displayed as a distinct card, highlighting key tools: the Smart Dashboard for real-time tracking, Weather Integration for seasonal demand correlation, AI-Powered Forecasting for predictive analytics, Bulk Import for data upload, Demand Analytics for trend insights, and User Management for role-based access
+
+
+
+
+
+
+
+
+
+
+
+How It Works Page: 
+
+
+Figure 4.1.3
+This page visually communicates how MedInsight works through a clear, three‑step process. It starts with Step 01: Upload Your Data, where one can import inventory records either through CSV/Excel or via direct input. Then, Step 02: AI Analysis describes how machine learning models process historical sales and integrated weather data to identify demand patterns. Finally, Step 03: Get Predictions sums up the output in actionable forecasts, designed to optimize stock levels. The layout successfully communicates the platform’s end‑to‑end, user‑friendly forecasting pipeline.
+
+
+
+
+
+
+
+
+
+
+
+Sign-In Page: 
+
+
+Figure 4.1.4
+This page enables secure user authentication for the MedInsight platform. It contains a standard login form with fields for Username and Password, a Sign In button, and a "Back to Home" link for easy navigation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+User Dashboard:
+
+4.2.1 User Dashboard:
+
+
+Figure 4.2.1
+The dashboard serves as the main control panel accessed after signing in, providing users with a quick overview of their medicine inventory. The top section displays key stock metrics: total medicines, low‑stock items (where current stock falls below forecasted demand), out‑of‑stock items, and medicines currently in stock. Below this, the Quick Actions section is basically followed by crucial functions such as sale entry, AI-powered demand predictions, and weather-related correlations.
+
+
+
+
+
+
+
+4.2.2 Activity Log Interface: 
+
+
+Figure 4.2.2
+This page lists all user actions on the system, accessible from the dashboard. Users can search, filter by type or action, and view details like user, action, type, and date for easy tracking, such as when medication is added or deleted.
+
+User Management Interface: 
+
+
+Figure 4.3
+This interface provides administrative control over platform access. It displays all user accounts in a table with their  username, assigned role. Administrators can add new users via the "Add New User" button, assigning one of three available roles: Admin, Analyst, or Data Operator, ensuring appropriate permission levels across the forecasting and inventory system.
+4.4       Master Data
+
+Master Data Management Interface: 
+
+
+Figure 4.4.1
+Master Data Management Interface is designed to centrally manage core reference data required by the system. This interface provides structured control over areas, medicine formulas, and medicine records, ensuring data consistency across forecasting and analysis modules.
+
+Area Management Interface: 
+
+
+Figure 4.4.2
+Area Management Interface provides functionality for authorized users to enter new areas and maintain the existing area database. Users can update area information or delete areas that are no longer in existence to have the most up-to-date area information.
+
+Formula Management Interface: 
+
+
+Figure 4.4.3
+Formula Management Interface enables users to add, update, and remove medicine formulation records used within the system. This module helps maintain accurate associations between medicines and their formulas.
+
+
+Medicine Management Interface: 
+
+
+Figure 4.4.4
+Medicine Management Interface allows users to add, edit, and delete medicine records within the system. Each medicine is linked to a predefined formula selected from the Formula Management module, ensuring data consistency. This module helps maintain accurate medicine information required for forecasting and analytical operations.
+Inventory Management: 
+
+4.5.1 Inventory Management Interface
+
+
+Figure 4.5.1 
+
+Inventory Management Interface provides a summarized view of medicine stock through total items, low stock, and out-of-stock indicators displayed on the dashboard. The interface also includes a search functionality that allows users to locate medicines using name, formula, or dosage criteria. This module supports efficient monitoring and management of inventory levels across the system.
+
+
+
+
+
+
+
+
+4.5.2   Upload Stock Adjustments Interface:
+
+      
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Figure 4.5.1 
+This modal interface allows bulk updates to medicine stock levels through file uploads. Users must first download a predefined Excel or CSV template containing the required columns. After filling out the template, users can upload the file using the designated area, which supports drag-and-drop or browsing. This feature enables efficient and error-controlled batch adjustments to the inventory, eliminating the need for manual entry.
+
+
+
+
+Sales Management: 
+
+Sales Management Interface:
+
+
+Figure 4.6.1
+
+
+
+
+
+
+
+
+
+
+Figure 4.6.2
+The Sales Management interface allows recording medicine sales via manual entry or bulk upload. The Add Sales Record form includes: District, Formula, Medicine, dosage, Date, and Sale Quantity. For bulk updates, users can download a template (figure 4.6.2) fill multiple records offline, and upload for batch processing. Below the form, a table displays all historical sales with details like date, district, formula, medicine, dosage, and quantity for easy tracking and auditing.
+
+Weather Management: 
+
+4.7.1   Weather Analytics Interface: 
+
+
+Figure 4.7.1
+This page shows weather trends using a visual graph. Users can pick a time period (1 month, 6 months, 1 year, or custom) to view past data. It also displays a 14-day weather forecast for upcoming conditions. An option to upload external weather data is provided to update the system's climate information.
+
+
+
+
+
+
+
+
+
+
+
+4.7.2   Weather Analytics Interface:
+
+
+Figure 4.7.2
+This feature lets users click on any point in the weather graph to see detailed stats for that day. A pop-up or side panel shows the average, minimum, maximum, and range of Apparent Temperature and Relative Humidity. It also includes a summary table for the selected period, showing overall averages, coldest, and hottest days. This helps analyze how daily weather affects medicine demand.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CHAPTER # 5
+Testing
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Testing
+Test Cases
+
+Test Case 1
+
+
+
+Test Case 2
+
+
+
+Test Case 3
+
+
+
+Test Case 4
+
+
+
+Test Case 5
+
+
+
+Test Case 6
+
+
+Test Case 7
+
+
+
+
+Test Case 8
+
+
+
+Test Case 9
+
+
+
+
+Test Case 10
+
+
+UC-01:  User Login 
+
+UC-02: Upload Weather Data
+
+
+
+ UC-03: Upload Sales Data
+
+
+  UC-04: Generate Medicine Sales Forecast (Weather + Area Based)
+  UC-05:  Search and Filter Inventory Records
+  
+UC-05: Select Forecast Time Range (Weekly/Monthly/Custom)
+UC-06: View Forecast Graphs (Visual Representation of Sales)
+
+ UC-07: View Weather Trend Graphs
+
+   UC-08: Auto Comparison of Forecast vs Actual Sales
+
+
+   UC-09: Compare Seasonal Demand (Winter/Summer Analysis)
+
+
+   UC-10: View Current Stock Levels
+
+   UC-11: Receive Low Stock Notifications (Auto Alert)
+
+
+   UC-12: Generate Final Forecast Summary Report
+
+
+
+
+CHAPTER # 7
+Conclusion and Future Work
+
+
+
+
+
+
+
+
+
+
+
+
+
+Conclusion and Future Work
+7.1 Conclusion
+The aim of the proposed project, MedInsight, is to bridge this critical gap between unpredictable medicine demand and traditional static inventory management systems. Integrating AI-based forecasting techniques with real-time and historical weather data, like Neural Prophet, the system may prove that forecasting medicine demand will be far more accurate by considering both environmental and sales-related factors together.
+It was designed based on clear-cut objectives, such as: demand forecasting with accuracy; smooth integration of weather analytics; and user friendliness for decision-making. These objectives were achieved in a structured architecture with Master Data Management, Inventory Management, Sales Analysis, Weather Monitoring, and Forecasting modules. Intuitive dashboards and management interfaces enable users to monitor stock levels efficiently, identify low or out-of-stock medicines, and take proactive actions.
+One of the important contributions of the current project is to point out that there is a very close relationship between climatic conditions and medicine consumption. Seasonal changes, weather, and all other kinds of variations substantially affect the demand for certain medicines, which MedInsight manages to catch using machine learning and time-series models. This helps to advance the accuracy of forecasts and therefore enables much better planning of pharmacies, hospitals, and healthcare suppliers.
+Overall, MedInsight meets its functional and analytical goals: to offer a central, intelligent, and scalable forecasting platform. Beyond technical implementation, the project places significant emphasis on predictive analytics as a core part of building resilient and sustainable healthcare supply chains. It represents a meaningful step toward adaptive medical inventory systems that are capable of responding to seasonal trends, sudden outbreaks, and environmental uncertainties.
+
+
+7.2 Future Work
+To further enhance the accuracy, scalability, and real-world impact of the MedInsight platform, several future improvements can be considered:
+7.2.1 Integration with Government Health Departments and NGOs
+A public-private partnership for the collaboration of government health institutions and NGOs can help in the deployment of the tool in a large scale, especially in rural or disaster-prone areas. This will help in the predictive stocking of crucial drugs during times of disease outbreaks and climate change emergencies
+7.2.2 Mobile Application with Offline Support
+Developing a mobile application with offline data entry and synchronization capabilities would improve accessibility for small pharmacies and field health workers operating in areas with limited internet connectivity.
+7.2.3 Cloud-Based Deployment
+The system can be extended into a cloud-based platform to support multiple pharmacies, distributors, and hospitals simultaneously. Cloud deployment would enable scalability, real-time access, and centralized data management across different locations.
+7.2.4 Integration with Disease Surveillance Data
+Future versions of the system may support multiple regions and languages, allowing adoption across different countries and healthcare systems and making the platform globally applicable.
+7.2.5 Integration with Disease Surveillance Data
+Incorporating anonymized disease surveillance reports and outbreak alerts alongside weather and sales data can significantly enhance forecasting accuracy, particularly for antibiotics, antipyretics, and vaccines.
+7.2.6 API-Based System Integration
+Secure APIs can be developed to integrate MedInsight with existing Hospital Information Systems (HIS) and Pharmacy Management Software, enabling automated data exchange and real-time inventory updates.
+7.2.7 Supplier and Distributor Collaboration Module
+A dedicated collaboration module can be introduced to share forecast-driven demand insights with suppliers and distributors, supporting just-in-time inventory and efficient supply chain coordination.
+7.2.8 Sector-Specific Forecast Customization
+Forecasting models can be customized for specific medical sectors such as veterinary medicine, maternal health, and chronic disease management, expanding the system’s applicability.
+7.2.9 Real-Time Alert and Notification System
+Future enhancements may include SMS, email, and in-app notifications to alert users about low stock levels, sudden demand spikes, or forecast anomalies in real time.
+7.2.10 Ethical and Regulatory Compliance Framework
+A built-in compliance framework ensuring adherence to data privacy and healthcare regulations (such as GDPR or HIPAA) can improve trust and facilitate institutional adoption.
+7.2.11 Public Health Analytics Dashboard
+A read-only, anonymized dashboard for policymakers and health authorities can provide insights into regional demand trends, supporting evidence-based public health planning and policy development.
+
+
+
+
+
+
+
+CHAPTER # 8
+References
+
+
+
+
+
+
+
+
+
+
+
+
+References
+A. Schisa and M. Farnè, “Analyzing the Impact of Climate Variables on Respiratory Pharmaceutical Demand,” arXiv Preprint, 2025.
+Available: https://arxiv.org/abs/2505.10642
+Y. Fan, H. Liu, and Z. Wang, “Prediction of Outpatient Visits Using LSTM-Based Time Series Models,” Journal of Economics and Policy Studies, 2025.
+Available: https://dergipark.org.tr/en/pub/jeps/issue/72838/1127844
+R. Çeliker, A. Demir, and S. Yıldız, “Medicine Consumption Forecasting Using Classical Time-Series Methods,” Dergipark Journal, 2024.
+Available: https://dergipark.org.tr
+J. Muneza, K. Uwase, and P. Mugisha, “Comparative Analysis of Forecasting Models on Pharmaceutical Index Data,” Dergipark Journal, 2023.
+Available: https://dergipark.org.tr
+X. Li, J. Wang, and H. Liu, “Climate Influence on Disease Incidence and Healthcare Demand Patterns,” Scientific Reports, Nature, 2022.
+Available: https://www.nature.com/articles
+M. İmece and O. Beyca, “Integrated Forecasting Models for Pharmaceutical Demand Using Machine Learning,” Dergipark Journal, 2022.
+Available: https://dergipark.org.tr
+Y. Zhang, Q. Li, and M. Chen, “Machine Learning Applications in Pharmaceutical Supply Chain Forecasting,” Elsevier Journal, 2021.
+Available: https://www.sciencedirect.com
+M. Rahman, S. Ahmed, and R. Islam, “Meteorology-Based Disease Prediction Models,” Springer Healthcare Analytics, 2021.
+Available: https://link.springer.com
+S. Taylor and B. Letham, “Forecasting at Scale,” The American Statistician, vol. 72, no. 1, pp. 37–45, 2018.
+Available: https://facebook.github.io/prophet/
+S. Chae, S. Kwon, and D. Lee, “Deep Learning-Based Disease Prediction Models,” IEEE Big Data Conference, 2018.
+Available: https://ieeexplore.ieee.org
+A. Ghosh and A. Banerjee, “Time-Series Forecasting Techniques in Healthcare Systems,” IEEE Xplore, 2020.
+Available: https://ieeexplore.ieee.org
+T. Nguyen, H. Pham, and D. Tran, “Hybrid Climate-Aware Forecasting Models for Epidemiology,” MDPI Sensors, 2020.
+Available: https://www.mdpi.com
+S. Mutheneni, A. P. Morse, C. Caminade, and S. M. Upadhyayula, “Impact of Climate on Disease Outbreaks,” PLOS ONE, 2017.
+Available: https://journals.plos.org
+(Used for foundational climate–disease linkage)
+J. Wang and M. Alexander, “Visualization Techniques for Medical Decision Support Systems,” IEEE Access, 2019.
+Available: https://ieeexplore.ieee.org
+H. Chen, X. Zhou, and Y. Li, “Data Summarization Techniques in Healthcare Analytics,” ACM Digital Library, 2020.
+Available: https://dl.acm.org
+ J. Hernandez and S. Kim, “Security and Privacy Challenges in Healthcare Information Systems,” IEEE Security & Privacy, 2021.
+Available: https://ieeexplore.ieee.org
+A. Aldekhail, M. Alhassan, and R. Alshammari, “Secure Data Management Frameworks for Healthcare Systems,” Elsevier Procedia Computer Science, 2020.
+Available: https://www.sciencedirect.com
+
+
+
+
+
+
+
+
+
+
+
+
+Annexure
+
+

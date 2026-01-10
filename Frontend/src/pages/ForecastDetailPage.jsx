@@ -19,6 +19,7 @@ function ForecastDetailPage() {
   const [forecastData, setForecastData] = useState(null);
   const [chartData, setChartData] = useState({ historical: [], forecast: [] });
   const [activeTab, setActiveTab] = useState("forecast"); // "forecast" or "medicines"
+  const [comparisonAnalysis, setComparisonAnalysis] = useState(null);
 
   const fetchMedicines = async () => {
     try {
@@ -65,19 +66,17 @@ function ForecastDetailPage() {
   
   const fetchForecastData = async (areaName, formName) => {
     try {
+      console.log(`[FetchForecast] Requesting forecast for ${areaName}/${formName} with ${forecastRange} days`);
       const response = await forecastAPI.getAreaFormulaForecast({
         area: areaName,
         formula: formName.replace(/ /g, '_'),
         days: parseInt(forecastRange)
       });
       
+      console.log('[FetchForecast] API Response:', response.data);
+      console.log('[FetchForecast] Summary:', response.data.summary);
+      console.log('[FetchForecast] Forecast array length:', response.data.forecast?.length);
       setForecastData(response.data);
-      
-      // Set chart data - only forecast initially
-      setChartData({
-        historical: [],
-        forecast: response.data.forecast || []
-      });
     } catch (err) {
       console.error("Error fetching forecast data:", err);
     }
@@ -119,6 +118,134 @@ function ForecastDetailPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [forecastRange, districtData]);
+
+  // Keep chart data in sync with forecast response and historical toggle/range
+  useEffect(() => {
+    if (!forecastData) return;
+
+    const rawHistorical =
+      forecastData.historical_data ||
+      forecastData.historicalData ||
+      forecastData.historical ||
+      [];
+
+    let historical = historicalRange.enabled ? rawHistorical : [];
+
+    // Optional client-side date filtering when enabled
+    if (historicalRange.enabled && (historicalRange.start || historicalRange.end)) {
+      const start = historicalRange.start ? new Date(historicalRange.start) : null;
+      const end = historicalRange.end ? new Date(historicalRange.end) : null;
+
+      historical = historical.filter((item) => {
+        const itemDate = new Date(item.date);
+        if (Number.isNaN(itemDate.getTime())) return false;
+        if (start && itemDate < start) return false;
+        if (end && itemDate > end) return false;
+        return true;
+      });
+    }
+
+    // UX: when historical is enabled, show historical ONLY (hide forecast line)
+    const chartForecastData = historicalRange.enabled ? [] : (forecastData.forecast || []);
+    console.log('[ChartData] Historical points:', historical.length);
+    console.log('[ChartData] Forecast points:', chartForecastData.length);
+    if (chartForecastData.length > 0) {
+      console.log('[ChartData] Sample forecast point:', chartForecastData[0]);
+    }
+    
+    setChartData({
+      historical,
+      forecast: chartForecastData
+    });
+
+    // Calculate comparison analysis
+    calculateComparison(rawHistorical, forecastData.forecast || []);
+  }, [forecastData, historicalRange.enabled, historicalRange.start, historicalRange.end]);
+
+  const calculateComparison = (historical, forecast) => {
+    console.log('Calculate Comparison called');
+    console.log('Historical data length:', historical.length);
+    console.log('Forecast data length:', forecast.length);
+    
+    if (!historical.length || !forecast.length) {
+      console.log('No data available for comparison');
+      setComparisonAnalysis(null);
+      return;
+    }
+
+    console.log('Sample historical data:', historical.slice(0, 2));
+    console.log('Sample forecast data:', forecast.slice(0, 2));
+
+    // Get forecast dates
+    const forecastDates = forecast.map(f => new Date(f.date));
+    const firstForecastDate = forecastDates[0];
+    const lastForecastDate = forecastDates[forecastDates.length - 1];
+    
+    console.log('Forecast period:', firstForecastDate, 'to', lastForecastDate);
+    
+    // Find historical data for the same period ONE YEAR BEFORE the forecast period
+    const lastYearStart = new Date(firstForecastDate);
+    lastYearStart.setFullYear(firstForecastDate.getFullYear() - 1);
+    const lastYearEnd = new Date(lastForecastDate);
+    lastYearEnd.setFullYear(lastForecastDate.getFullYear() - 1);
+    
+    console.log('Looking for last year data from:', lastYearStart, 'to', lastYearEnd);
+    
+    const samePerioLastYear = historical.filter(h => {
+      const date = new Date(h.date);
+      return date >= lastYearStart && date <= lastYearEnd;
+    });
+    
+    console.log('Found same period last year data:', samePerioLastYear.length, 'records');
+    
+    // Helper function to get value from different possible property names
+    const getValue = (item) => {
+      return item.predicted_quantity || item.quantity || item.value || item.yhat || item.y || item.demand || item.forecast || 0;
+    };
+    
+    // Calculate averages
+    const forecastTotal = forecast.reduce((sum, f) => sum + getValue(f), 0);
+    const forecastAvg = forecastTotal / forecast.length;
+    console.log('Forecast total:', forecastTotal, 'Average:', forecastAvg);
+    
+    const lastYearTotal = samePerioLastYear.reduce((sum, h) => sum + getValue(h), 0);
+    const lastYearAvg = samePerioLastYear.length > 0 ? lastYearTotal / samePerioLastYear.length : 0;
+    console.log('Last year total:', lastYearTotal, 'Average:', lastYearAvg);
+    
+    const difference = forecastAvg - lastYearAvg;
+    const percentChange = lastYearAvg > 0 ? ((difference / lastYearAvg) * 100) : 0;
+    
+    // Calculate total historical average for context
+    const totalHistoricalAvg = historical.length > 0
+      ? historical.reduce((sum, h) => sum + getValue(h), 0) / historical.length
+      : 0;
+    
+    // Find peak historical demand
+    const peakHistorical = historical.length > 0
+      ? Math.max(...historical.map(h => getValue(h)))
+      : 0;
+    
+    const peakForecast = Math.max(...forecast.map(f => getValue(f)));
+    
+    const analysis = {
+      forecastAvg: forecastAvg.toFixed(1),
+      lastYearAvg: lastYearAvg.toFixed(1),
+      difference: difference.toFixed(1),
+      percentChange: percentChange.toFixed(1),
+      isHigher: difference > 0,
+      totalHistoricalAvg: totalHistoricalAvg.toFixed(1),
+      peakHistorical: peakHistorical.toFixed(0),
+      peakForecast: peakForecast.toFixed(0),
+      forecastPeriod: `${firstForecastDate.toLocaleDateString()} - ${lastForecastDate.toLocaleDateString()}`,
+      lastYearPeriod: samePerioLastYear.length > 0 
+        ? `${lastYearStart.toLocaleDateString()} - ${lastYearEnd.toLocaleDateString()}`
+        : 'No data',
+      hasLastYearData: samePerioLastYear.length > 0
+    };
+    
+    console.log('Comparison analysis result:', analysis);
+    setComparisonAnalysis(analysis);
+  };
 
   if (loading) {
     return (
@@ -203,7 +330,7 @@ function ForecastDetailPage() {
                 Forecast Period
               </label>
               <div className="flex gap-2">
-                {["14", "30", "90"].map(days => (
+                {["14", "30"].map(days => (
                   <button
                     key={days}
                     onClick={() => handleForecastRangeChange(days)}
@@ -212,7 +339,7 @@ function ForecastDetailPage() {
                         : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
-                    {days === "14" ? "2 Weeks" : days === "30" ? "1 Month" : "3 Months"}
+                    {days === "14" ? "2 Weeks" : "1 Month"}
                   </button>
                 ))}
               </div>
@@ -285,14 +412,70 @@ function ForecastDetailPage() {
 
         {/* Forecast Tab Content */}
         {activeTab === "forecast" && forecastData && (
-          <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 p-6">
-            <h5 className="text-lg font-bold text-gray-900 mb-4">📈 Forecast Chart</h5>
-            <ForecastChart
-              historicalData={chartData.historical}
-              forecastData={chartData.forecast}
-              title={`${districtData?.name} - ${formulaName} Forecast`}
-            />
-          </div>
+          <>
+            {/* Forecast Chart */}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 p-6">
+              <h5 className="text-lg font-bold text-gray-900 mb-4">📈 Forecast Chart</h5>
+              <ForecastChart
+                historicalData={chartData.historical}
+                forecastData={chartData.forecast}
+                title={`${districtData?.name} - ${formulaName} Forecast`}
+              />
+            </div>
+
+            {/* Simplified Comparison Analysis Card */}
+            {comparisonAnalysis && comparisonAnalysis.hasLastYearData && (
+              <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4">
+                  <h5 className="text-xl font-bold flex items-center gap-2">
+                    📊 Forecast vs Historical Comparison
+                  </h5>
+                </div>
+                <div className="p-6">
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Last Year Sales */}
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-200 text-center">
+                      <p className="text-sm text-blue-700 font-semibold mb-2 uppercase tracking-wide">Last Year Same Period</p>
+                      <p className="text-4xl font-bold text-blue-900 mb-2">{comparisonAnalysis.lastYearAvg}</p>
+                      <p className="text-xs text-blue-600">units/day average</p>
+                      <p className="text-xs text-blue-500 mt-1">{comparisonAnalysis.lastYearPeriod}</p>
+                    </div>
+
+                    {/* Current Forecast */}
+                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200 text-center">
+                      <p className="text-sm text-green-700 font-semibold mb-2 uppercase tracking-wide">Current Forecast</p>
+                      <p className="text-4xl font-bold text-green-900 mb-2">{comparisonAnalysis.forecastAvg}</p>
+                      <p className="text-xs text-green-600">units/day average</p>
+                      <p className="text-xs text-green-500 mt-1">{comparisonAnalysis.forecastPeriod}</p>
+                    </div>
+
+                    {/* Percentage Change */}
+                    <div className={`bg-gradient-to-br p-6 rounded-xl border-2 text-center ${
+                      comparisonAnalysis.isHigher 
+                        ? 'from-amber-50 to-amber-100 border-amber-200' 
+                        : 'from-red-50 to-red-100 border-red-200'
+                    }`}>
+                      <p className={`text-sm font-semibold mb-2 uppercase tracking-wide ${
+                        comparisonAnalysis.isHigher ? 'text-amber-700' : 'text-red-700'
+                      }`}>
+                        Change vs Last Year
+                      </p>
+                      <p className={`text-4xl font-bold mb-2 ${
+                        comparisonAnalysis.isHigher ? 'text-amber-900' : 'text-red-900'
+                      }`}>
+                        {comparisonAnalysis.isHigher ? '+' : ''}{comparisonAnalysis.percentChange}%
+                      </p>
+                      <p className={`text-sm font-medium ${
+                        comparisonAnalysis.isHigher ? 'text-amber-700' : 'text-red-700'
+                      }`}>
+                        {comparisonAnalysis.isHigher ? '↗ Higher Demand' : '↘ Lower Demand'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Medicines Tab Content */}

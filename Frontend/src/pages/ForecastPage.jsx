@@ -35,18 +35,111 @@ function ForecastPage() {
   const fetchDistrictsAndFormulas = async () => {
     try {
       setLoading(true);
-      const [districtsRes, formulasRes] = await Promise.all([
-        districtsAPI.getAll(),
-        formulasAPI.getAll()
+      const [areasRes, formulasRes] = await Promise.all([
+        forecastAPI.getAvailableAreas(),
+        forecastAPI.getAvailableFormulas()
       ]);
-      setDistricts(districtsRes.data || []);
-      setFormulas(formulasRes.data || []);
+      
+      // Convert to format expected by the component
+      const districtsData = (areasRes.data.areas || []).map(name => ({ name }));
+      const formulasData = (formulasRes.data.formulas || []).map(name => ({ name }));
+      
+      setDistricts(districtsData);
+      setFormulas(formulasData);
       setLoading(false);
     } catch (err) {
       console.error("Failed to fetch districts/formulas:", err);
       setError("Failed to load data");
       setLoading(false);
     }
+  };
+  
+  const calculateYoYComparison = (historical, forecast) => {
+    console.log('calculateYoYComparison called', {
+      historicalLength: historical.length,
+      forecastLength: forecast.length,
+      sampleHistorical: historical.slice(0, 2),
+      sampleForecast: forecast.slice(0, 2)
+    });
+    
+    if (!historical.length || !forecast.length) {
+      console.log('No data for comparison');
+      return null;
+    }
+
+    const forecastDates = forecast.map(f => new Date(f.date));
+    const firstForecastDate = forecastDates[0];
+    const lastForecastDate = forecastDates[forecastDates.length - 1];
+    
+    console.log('Forecast period:', {
+      start: firstForecastDate.toISOString(),
+      end: lastForecastDate.toISOString()
+    });
+    
+    // Find historical data for the same period ONE YEAR BEFORE
+    const lastYearStart = new Date(firstForecastDate);
+    lastYearStart.setFullYear(firstForecastDate.getFullYear() - 1);
+    const lastYearEnd = new Date(lastForecastDate);
+    lastYearEnd.setFullYear(lastForecastDate.getFullYear() - 1);
+    
+    console.log('Looking for last year period:', {
+      start: lastYearStart.toISOString(),
+      end: lastYearEnd.toISOString()
+    });
+    
+    const samePerioLastYear = historical.filter(h => {
+      const date = new Date(h.date);
+      return date >= lastYearStart && date <= lastYearEnd;
+    });
+    
+    console.log('Found last year data:', samePerioLastYear.length, 'records');
+    
+    if (samePerioLastYear.length === 0) {
+      console.log('No matching historical data found');
+      return null;
+    }
+    
+    // Helper to extract value from data object - try all possible property names
+    const getValue = (item) => {
+      return item.quantity || item.value || item.yhat || item.y || item.demand || item.forecast || 0;
+    };
+    
+    const forecastTotal = forecast.reduce((sum, f) => sum + getValue(f), 0);
+    const lastYearTotal = samePerioLastYear.reduce((sum, h) => sum + getValue(h), 0);
+    
+    console.log('Totals:', {
+      forecastTotal,
+      lastYearTotal,
+      forecastCount: forecast.length,
+      lastYearCount: samePerioLastYear.length,
+      forecastSample: forecast[0],
+      historicalSample: samePerioLastYear[0]
+    });
+    
+    if (forecastTotal === 0 || lastYearTotal === 0) {
+      console.log('Zero total detected, skipping comparison');
+      return null;
+    }
+    
+    const forecastAvg = forecastTotal / forecast.length;
+    const lastYearAvg = lastYearTotal / samePerioLastYear.length;
+    
+    console.log('Averages:', {
+      forecastAvg,
+      lastYearAvg
+    });
+    
+    const difference = forecastAvg - lastYearAvg;
+    const percentChange = lastYearAvg > 0 ? ((difference / lastYearAvg) * 100) : 0;
+    
+    const result = {
+      percentChange: percentChange.toFixed(1),
+      isHigher: difference > 0,
+      hasData: true
+    };
+    
+    console.log('Comparison result:', result);
+    return result;
   };
   
   const fetchAreaForecasts = React.useCallback(async () => {
@@ -60,33 +153,52 @@ function ForecastPage() {
       for (const area of areasToFetch) {
         if (!area) continue;
         
-        // Get formulas for this area
-        const formulasRes = await districtsAPI.getFormulas(area.id);
-        const areaFormulas = formulasRes.data || [];
-        
-        // Fetch forecast for each formula in this area
-        const formulaForecasts = [];
-        for (const formula of areaFormulas) {
-          try {
-            const forecastRes = await forecastAPI.getAreaFormulaForecast({
-              area: area.name,
-              formula: formula.name.replace(/ /g, '_'),
-              days: selectedDays
-            });
-            formulaForecasts.push({
-              formula: formula.name,
-              totalForecast: forecastRes.data.summary?.total_forecast || 0,
-              forecastData: forecastRes.data.forecast || []
-            });
-          } catch (err) {
-            console.error(`Failed to fetch forecast for ${area.name} - ${formula.name}:`, err);
+        try {
+          // Get formulas for this area using forecast metadata endpoint
+          const formulasRes = await forecastAPI.getAvailableFormulas(area.name);
+          const areaFormulas = (formulasRes.data.formulas || []).map(name => ({ name }));
+          
+          if (areaFormulas.length === 0) {
+            console.debug(`No formulas found for area: ${area.name}`);
+            continue; // Skip areas with no formulas
           }
+          
+          // Fetch forecast for each formula in this area
+          const formulaForecasts = [];
+          for (const formula of areaFormulas) {
+            try {
+              const forecastRes = await forecastAPI.getAreaFormulaForecast({
+                area: area.name,
+                formula: formula.name.replace(/ /g, '_'),
+                days: selectedDays
+              });
+              
+              // Calculate year-over-year comparison
+              const comparison = calculateYoYComparison(
+                forecastRes.data.historical_data || forecastRes.data.historicalData || forecastRes.data.historical || [],
+                forecastRes.data.forecast || []
+              );
+              
+              formulaForecasts.push({
+                formula: formula.name,
+                totalForecast: forecastRes.data.summary?.total_forecast || 0,
+                forecastData: forecastRes.data.forecast || [],
+                comparison: comparison
+              });
+            } catch (err) {
+              console.error(`Failed to fetch forecast for ${area.name} - ${formula.name}:`, err);
+            }
+          }
+          
+          if (formulaForecasts.length > 0) {
+            results.push({
+              area: area.name,
+              formulas: formulaForecasts
+            });
+          }
+        } catch (err) {
+          console.error(`Failed to fetch formulas for area ${area.name}:`, err);
         }
-        
-        results.push({
-          area: area.name,
-          formulas: formulaForecasts
-        });
       }
       
       setAreaForecasts(results);
@@ -96,7 +208,7 @@ function ForecastPage() {
       setError("Failed to load area forecasts");
       setLoading(false);
     }
-  }, [filterArea, selectedDays, districts, formulas]);
+  }, [filterArea, selectedDays, districts]);
   
   const fetchFormulaForecasts = React.useCallback(async () => {
     try {
@@ -111,15 +223,17 @@ function ForecastPage() {
       for (const formula of formulasToFetch) {
         if (!formula) continue;
         
-        // Get districts for this formula
-        const districtsRes = await formulasAPI.getDistricts(formula.id);
-        const formulaDistricts = districtsRes.data || [];
+        console.log(`Fetching forecasts for formula: ${formula.name}`);
         
-        // Fetch forecast for each area where this formula is sold
+        // For each formula, check all districts to see which ones have sales data
         const areaForecasts = [];
         let totalForecast = 0;
         
-        for (const district of formulaDistricts) {
+        // Collect all historical and forecast data
+        let allHistoricalData = [];
+        let allForecastData = [];
+        
+        for (const district of districts) {
           try {
             const forecastRes = await forecastAPI.getAreaFormulaForecast({
               area: district.name,
@@ -127,21 +241,56 @@ function ForecastPage() {
               days: selectedDays
             });
             const forecast = forecastRes.data.summary?.total_forecast || 0;
-            areaForecasts.push({
-              area: district.name,
-              forecast: forecast,
-              forecastData: forecastRes.data.forecast || []
-            });
-            totalForecast += forecast;
+            
+            console.log(`${district.name} - ${formula.name}: forecast = ${forecast}`);
+            
+            if (forecast > 0) {
+              const historicalData = forecastRes.data.historical_data || forecastRes.data.historicalData || forecastRes.data.historical || [];
+              const forecastData = forecastRes.data.forecast || [];
+              
+              console.log(`${district.name} historical:`, historicalData.length, 'forecast:', forecastData.length);
+              
+              // Collect data for overall comparison
+              allHistoricalData = allHistoricalData.concat(historicalData);
+              allForecastData = allForecastData.concat(forecastData);
+              
+              // Calculate year-over-year comparison for this area
+              const comparison = calculateYoYComparison(historicalData, forecastData);
+              
+              areaForecasts.push({
+                area: district.name,
+                forecast: forecast,
+                forecastData: forecastData,
+                comparison: comparison
+              });
+              totalForecast += forecast;
+            }
           } catch (err) {
-            console.error(`Failed to fetch forecast for ${district.name} - ${formula.name}:`, err);
+            // Area doesn't have this formula, skip
+            console.debug(`No forecast for ${district.name} - ${formula.name}`);
           }
         }
+        
+        console.log(`Formula ${formula.name} total data:`, {
+          historicalRecords: allHistoricalData.length,
+          forecastRecords: allForecastData.length,
+          totalForecast,
+          sampleHistorical: allHistoricalData.slice(0, 2),
+          sampleForecast: allForecastData.slice(0, 2)
+        });
+        
+        // Calculate overall comparison for the formula across all areas
+        const overallComparison = allHistoricalData.length > 0 && allForecastData.length > 0 
+          ? calculateYoYComparison(allHistoricalData, allForecastData)
+          : null;
+        
+        console.log(`Formula ${formula.name} overall comparison:`, overallComparison);
         
         results.push({
           formula: formula.name,
           totalForecast: totalForecast,
-          areas: areaForecasts
+          areas: areaForecasts,
+          comparison: overallComparison
         });
       }
       
@@ -152,7 +301,7 @@ function ForecastPage() {
       setError("Failed to load formula forecasts");
       setLoading(false);
     }
-  }, [filterFormula, selectedDays, formulas]);
+  }, [filterFormula, selectedDays, formulas, districts]);
   
   useEffect(() => {
     if (viewParameter === 'area') {
@@ -350,9 +499,21 @@ function ForecastPage() {
                               <div className="flex items-center gap-6">
                                 <div className="text-right">
                                   <p className="text-sm text-gray-600">Total Forecast</p>
-                                  <p className="text-2xl font-bold text-gray-900">
-                                    {formatNumber(formulaData.totalForecast)}
-                                  </p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-2xl font-bold text-gray-900">
+                                      {formatNumber(formulaData.totalForecast)}
+                                    </p>
+                                    {formulaData.comparison && formulaData.comparison.hasData && (
+                                      <span className={`flex items-center gap-1 text-sm font-bold px-2 py-1 rounded ${
+                                        formulaData.comparison.isHigher 
+                                          ? 'bg-green-100 text-green-700' 
+                                          : 'bg-red-100 text-red-700'
+                                      }`}>
+                                        {formulaData.comparison.isHigher ? '↗' : '↘'}
+                                        {Math.abs(formulaData.comparison.percentChange)}%
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                                 <span className="text-2xl text-gray-400">→</span>
                               </div>
@@ -390,9 +551,21 @@ function ForecastPage() {
                     <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-sm text-gray-600">Total Demand</p>
-                        <p className="text-2xl font-bold text-green-600">
-                          {formatNumber(formulaData.totalForecast)}
-                        </p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-2xl font-bold text-green-600">
+                            {formatNumber(formulaData.totalForecast)}
+                          </p>
+                          {formulaData.comparison && formulaData.comparison.hasData && (
+                            <span className={`flex items-center gap-1 text-sm font-bold px-2 py-1 rounded ${
+                              formulaData.comparison.isHigher 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-red-100 text-red-700'
+                            }`}>
+                              {formulaData.comparison.isHigher ? '↗' : '↘'}
+                              {Math.abs(formulaData.comparison.percentChange)}%
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <span className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-4 py-2 rounded-full text-sm font-semibold">
                         {selectedDays} days
@@ -420,9 +593,21 @@ function ForecastPage() {
                               <div className="flex items-center gap-6">
                                 <div className="text-right">
                                   <p className="text-sm text-gray-600">Area Forecast</p>
-                                  <p className="text-2xl font-bold text-gray-900">
-                                    {formatNumber(areaData.forecast)}
-                                  </p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-2xl font-bold text-gray-900">
+                                      {formatNumber(areaData.forecast)}
+                                    </p>
+                                    {areaData.comparison && areaData.comparison.hasData && (
+                                      <span className={`flex items-center gap-1 text-sm font-bold px-2 py-1 rounded ${
+                                        areaData.comparison.isHigher 
+                                          ? 'bg-green-100 text-green-700' 
+                                          : 'bg-red-100 text-red-700'
+                                      }`}>
+                                        {areaData.comparison.isHigher ? '↗' : '↘'}
+                                        {Math.abs(areaData.comparison.percentChange)}%
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                                 <span className="text-2xl text-gray-400">→</span>
                               </div>

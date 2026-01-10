@@ -135,7 +135,6 @@ class Medicine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     formula_id = db.Column(db.Integer, db.ForeignKey('formula.id'), nullable=False, index=True)
     brand_name = db.Column(db.String(100), nullable=False, index=True)
-    medicine_id = db.Column(db.String(50), unique=True, nullable=False)
     dosage_strength = db.Column(db.String(50), nullable=True)
     therapeutic_class = db.Column(db.String(100), nullable=True)
     stock_level = db.Column(db.Integer, default=0, nullable=False)  # Current stock quantity
@@ -157,7 +156,6 @@ class Medicine(db.Model):
             "formulaId": self.formula_id,
             "formulaName": self.formula.name if self.formula else None,
             "brandName": self.brand_name,
-            "medicineId": self.medicine_id,
             "dosageStrength": self.dosage_strength,
             "therapeuticClass": self.therapeutic_class,
             "stockLevel": self.stock_level,
@@ -189,6 +187,9 @@ class MedicineSales(db.Model):
         return {
             "id": self.id,
             "medicineId": self.medicine_id,
+            "medicineName": self.medicine.brand_name if self.medicine else None,
+            "dosageStrength": self.medicine.dosage_strength if self.medicine else None,
+            "formulaName": self.medicine.formula.name if self.medicine and self.medicine.formula else None,
             "districtId": self.district_id,
             "districtName": self.district.name if self.district else None,
             "date": self.date.isoformat() if self.date else None,
@@ -226,5 +227,37 @@ class MedicineForecast(db.Model):
             "forecastDate": self.forecast_date.isoformat() if self.forecast_date else None,
             "forecastedQuantity": self.forecasted_quantity,
             "modelVersion": self.model_version,
+            "createdAt": self.created_at.isoformat() if self.created_at else None
+        }
+
+
+class DistrictMedicineLookup(db.Model):
+    __tablename__ = 'district_medicine_lookup'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'), nullable=False, index=True)
+    medicine_id = db.Column(db.Integer, db.ForeignKey('medicine.id'), nullable=False, index=True)
+    formula_id = db.Column(db.Integer, db.ForeignKey('formula.id'), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    # Relationships
+    district = db.relationship('District', foreign_keys=[district_id])
+    medicine = db.relationship('Medicine', foreign_keys=[medicine_id])
+    formula = db.relationship('Formula', foreign_keys=[formula_id])
+    
+    # Composite unique index
+    __table_args__ = (
+        db.Index('idx_district_medicine_formula', 'district_id', 'medicine_id', 'formula_id', unique=True),
+    )
+    
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "districtId": self.district_id,
+            "districtName": self.district.name if self.district else None,
+            "medicineId": self.medicine_id,
+            "medicineName": self.medicine.brand_name if self.medicine else None,
+            "formulaId": self.formula_id,
+            "formulaName": self.formula.name if self.formula else None,
             "createdAt": self.created_at.isoformat() if self.created_at else None
         }

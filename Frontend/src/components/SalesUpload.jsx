@@ -75,18 +75,29 @@ export default function SalesUpload({ isOpen, onClose, onSuccess }) {
       const fileInput = document.getElementById("sales-file-input");
       if (fileInput) fileInput.value = "";
       
-      // Call success callback after a delay
-      setTimeout(() => {
-        onSuccess?.();
-        handleClose();
-      }, 2000);
+      // Call success callback but don't auto-close - let user read and close manually
+      onSuccess?.();
       
     } catch (err) {
+      console.error('Sales upload error:', err);
       const errorData = err.response?.data || {};
-      setError(
-        errorData.error || 
-        "Failed to upload file. Please check the format and try again."
-      );
+      
+      let errorMsg = "Failed to upload file. Please check the format and try again.";
+      
+      if (err.response) {
+        errorMsg = errorData.error || errorMsg;
+        
+        // Check for authentication errors
+        if (err.response.status === 401) {
+          errorMsg = "Authentication required. Please log in first.";
+        } else if (err.response.status === 403) {
+          errorMsg = "Access denied. You don't have permission to upload sales data.";
+        }
+      } else if (err.request) {
+        errorMsg = "No response from server. Please check if the backend is running.";
+      }
+      
+      setError(errorMsg);
       
       // Display detailed validation errors if available
       if (errorData.errors && Array.isArray(errorData.errors)) {
@@ -140,11 +151,11 @@ export default function SalesUpload({ isOpen, onClose, onSuccess }) {
               Download the Excel template with the following required columns:
             </p>
             <ul className="text-sm text-green-800 space-y-1 list-disc list-inside mb-4">
-              <li><strong>District</strong> - Name of the district</li>
+              <li><strong>Date</strong> - Date of the sale (YYYY-MM-DD)</li>
+              <li><strong>Area</strong> - Name of the district/area</li>
               <li><strong>Formula</strong> - Medicine formula name</li>
-              <li><strong>Medicine Name</strong> - Medicine ID</li>
-              <li><strong>Dosage</strong> - Dosage strength (e.g., 500mg)</li>
-              <li><strong>Brand</strong> - Brand name</li>
+              <li><strong>Medicine Name/ID</strong> - Medicine ID (e.g., MED001) or Brand name</li>
+              <li><strong>Dosage</strong> - Dosage strength (e.g., 500mg) - Optional</li>
               <li><strong>Sale Quantity</strong> - Number of units sold</li>
             </ul>
             <button

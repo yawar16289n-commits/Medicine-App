@@ -17,6 +17,7 @@ import MedicineManager from "./pages/MedicineManager";
 import MasterDataPage from "./pages/MasterDataPage";
 import InventoryPage from "./pages/InventoryPage";
 import ActivitiesPage from "./pages/ActivitiesPage";
+import Infographic from "./pages/Infographic";
 
 function RequireAuth({ children, allowedRoles = null }) {
   const location = useLocation();
@@ -61,6 +62,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/infographic" element={<Infographic />} />
           <Route path="/sales" element={
             <RequireAuth>
               <SalesPage />

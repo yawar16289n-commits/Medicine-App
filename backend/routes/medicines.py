@@ -46,27 +46,12 @@ def create_medicine(**kwargs):
     if existing:
         return jsonify({
             "error": f"Medicine already exists: {existing.brand_name} {existing.dosage_strength or ''} ({formula.name})",
-            "existingMedicineId": existing.medicine_id
+            "existingId": existing.id
         }), 409
-    
-    # Auto-generate medicine_id
-    # Query for the highest medicine_id number
-    last_medicine = Medicine.query.order_by(Medicine.id.desc()).first()
-    if last_medicine and last_medicine.medicine_id and last_medicine.medicine_id.startswith('MED'):
-        try:
-            last_num = int(last_medicine.medicine_id[3:])
-            new_num = last_num + 1
-        except (ValueError, IndexError):
-            new_num = 1
-    else:
-        new_num = 1
-    
-    medicine_id = f"MED{new_num:03d}"  # Format: MED001, MED002, etc.
     
     new_medicine = Medicine(
         formula_id=data.get('formulaId'),
         brand_name=data.get('brandName'),
-        medicine_id=medicine_id,
         dosage_strength=data.get('dosageStrength'),
         therapeutic_class=data.get('therapeuticClass')  # Accept from request
     )
@@ -83,7 +68,6 @@ def create_medicine(**kwargs):
             entity_type='medicine',
             entity_id=new_medicine.id,
             details={
-                'medicineId': medicine_id,
                 'brandName': new_medicine.brand_name,
                 'dosage': new_medicine.dosage_strength
             }
@@ -99,6 +83,7 @@ def create_medicine(**kwargs):
 def get_medicines():
     """
     Get all medicines grouped by formula name.
+    Includes 14-day forecast and formula-level stock status.
     
     Returns:
         {
@@ -108,21 +93,75 @@ def get_medicines():
                     "formulaId": 1,
                     "formulaName": "Formula A",
                     "brandName": "Brand X",
-                    "medicineId": "MED001",
                     "dosageStrength": "500mg",
-                    "createdAt": "2024-01-01T00:00:00"
+                    "createdAt": "2024-01-01T00:00:00",
+                    "forecast14Days": 150,
+                    "formulaTotalStock": 500,
+                    "formulaTotalForecast": 450,
+                    "isFormulaLowStock": false
                 }
             ]
         }
     """
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    
     medicines = Medicine.query.join(Formula).order_by(Formula.name.asc()).all()
+
+    # Calculate 14-day forecast window
+    today = date.today()
+    forecast_end = today + timedelta(days=14)
+    
+    # Get all forecast data for the next 14 days summed across ALL districts
+    # This sums forecasted_quantity across all districts and all dates in the 14-day window
+    forecast_query = db.session.query(
+        MedicineForecast.medicine_id,
+        func.sum(MedicineForecast.forecasted_quantity).label('total_forecast')
+    ).filter(
+        MedicineForecast.forecast_date >= today,
+        MedicineForecast.forecast_date < forecast_end
+    ).group_by(MedicineForecast.medicine_id).all()
+    
+    # Create a dictionary of medicine_id -> total forecast (sum of all areas)
+    forecast_map = {row[0]: row[1] for row in forecast_query}
+    
+    # Calculate formula-level totals (total stock and forecast per formula)
+    formula_totals = {}
+    for med in medicines:
+        formula_id = med.formula_id
+        if formula_id not in formula_totals:
+            formula_totals[formula_id] = {
+                'total_stock': 0,
+                'total_forecast': 0
+            }
+        formula_totals[formula_id]['total_stock'] += (med.stock_level or 0)
+        formula_totals[formula_id]['total_forecast'] += forecast_map.get(med.id, 0)
+    
+    # Debug: Print formula-level aggregation
+    print(f"[DEBUG] Formula-level stock analysis:")
+    for formula_id, totals in formula_totals.items():
+        formula = Formula.query.get(formula_id)
+        if formula:
+            status = "LOW STOCK" if totals['total_stock'] < totals['total_forecast'] else "OK"
+            print(f"  {formula.name}: Stock={totals['total_stock']}, Forecast={totals['total_forecast']} [{status}]")
 
     grouped = {}
     for med in medicines:
         formula_name = med.formula.name
         if formula_name not in grouped:
             grouped[formula_name] = []
-        grouped[formula_name].append(med.to_dict())
+        
+        med_dict = med.to_dict()
+        # Add individual medicine forecast
+        med_dict['forecast14Days'] = forecast_map.get(med.id, 0)
+        
+        # Add formula-level totals
+        formula_total = formula_totals.get(med.formula_id, {'total_stock': 0, 'total_forecast': 0})
+        med_dict['formulaTotalStock'] = formula_total['total_stock']
+        med_dict['formulaTotalForecast'] = formula_total['total_forecast']
+        med_dict['isFormulaLowStock'] = formula_total['total_stock'] < formula_total['total_forecast']
+        
+        grouped[formula_name].append(med_dict)
 
     return jsonify(grouped), 200
 
@@ -144,7 +183,6 @@ def update_medicine(id, **kwargs):
         {
             "formulaId": 1,
             "brandName": "Updated Brand",
-            "medicineId": "MED001",
             "dosageStrength": "500mg"
         }
     """
@@ -161,8 +199,6 @@ def update_medicine(id, **kwargs):
     
     if 'brandName' in data:
         medicine.brand_name = data['brandName']
-    if 'medicineId' in data:
-        medicine.medicine_id = data['medicineId']
     if 'dosageStrength' in data:
         medicine.dosage_strength = data['dosageStrength']
     if 'therapeuticClass' in data:
@@ -180,7 +216,6 @@ def update_medicine(id, **kwargs):
             entity_type='medicine',
             entity_id=medicine.id,
             details={
-                'medicineId': medicine.medicine_id,
                 'brandName': medicine.brand_name
             }
         )
@@ -199,7 +234,6 @@ def delete_medicine(id, **kwargs):
     medicine = Medicine.query.get_or_404(id)
     
     # Store details before deletion
-    medicine_id = medicine.medicine_id
     brand_name = medicine.brand_name
     
     db.session.delete(medicine)
@@ -215,7 +249,6 @@ def delete_medicine(id, **kwargs):
             entity_type='medicine',
             entity_id=id,
             details={
-                'medicineId': medicine_id,
                 'brandName': brand_name
             }
         )
@@ -249,13 +282,13 @@ def upload_medicines():
 
         count = 0
         for _, row in df.iterrows():
+            # This bulk upload expects basic medicine info
+            # You may need to adjust based on actual CSV structure
             med = Medicine(
-                formula=row.get('formula'),
-                medicine_id=row.get('medicineid') or row.get('medicine_id'),
-                name=row.get('name'),
-                stock=row.get('stock', 0),
-                forecast=row.get('forecast', 0),
-                stock_status=row.get('stockstatus') or row.get('stock_status', 'Unknown')
+                formula_id=row.get('formulaid') or row.get('formula_id'),
+                brand_name=row.get('brandname') or row.get('brand_name'),
+                dosage_strength=row.get('dosagestrength') or row.get('dosage_strength'),
+                stock_level=row.get('stocklevel') or row.get('stock_level', 0)
             )
             db.session.add(med)
             count += 1
@@ -268,6 +301,53 @@ def upload_medicines():
     except Exception as e:
         db.session.rollback()
         return jsonify({'error': str(e)}), 500
+
+
+@medicines_bp.route('/medicines/sales', methods=['GET'])
+def get_sales_records():
+    """
+    Get all sales records with medicine and district details
+    Optional query params:
+    - limit: number of records to return (default: all)
+    - medicine_id: filter by medicine
+    - district_id: filter by district
+    - start_date: filter from date (YYYY-MM-DD)
+    - end_date: filter to date (YYYY-MM-DD)
+    """
+    try:
+        query = MedicineSales.query
+        
+        # Apply filters if provided
+        medicine_id = request.args.get('medicine_id')
+        if medicine_id:
+            query = query.filter_by(medicine_id=int(medicine_id))
+        
+        district_id = request.args.get('district_id')
+        if district_id:
+            query = query.filter_by(district_id=int(district_id))
+        
+        start_date = request.args.get('start_date')
+        if start_date:
+            query = query.filter(MedicineSales.date >= start_date)
+        
+        end_date = request.args.get('end_date')
+        if end_date:
+            query = query.filter(MedicineSales.date <= end_date)
+        
+        # Order by date descending (most recent first)
+        query = query.order_by(MedicineSales.date.desc())
+        
+        # Apply limit if provided
+        limit = request.args.get('limit')
+        if limit:
+            query = query.limit(int(limit))
+        
+        sales_records = query.all()
+        
+        return jsonify([record.to_dict() for record in sales_records]), 200
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @medicines_bp.route('/medicines/sales', methods=['POST'])
@@ -370,7 +450,6 @@ def create_sales_record(**kwargs):
             entity_id=sales_record.id,
             details={
                 'medicine': medicine.brand_name,
-                'medicineId': medicine.medicine_id,
                 'district': district.name,
                 'date': sale_date.isoformat(),
                 'quantity': sale_quantity
@@ -401,12 +480,12 @@ def download_sales_template():
     try:
         # Create template with column headers matching manual entry fields
         template_data = {
-            'District': [''],
-            'Formula': [''],
-            'Medicine Brand': [''],
-            'Dosage': [''],
-            'Date': [''],
-            'Sale Quantity': [''],
+            'Date': ['2026-01-05'],
+            'Area': ['Bahadurabad'],
+            'Formula': ['Paracetamol'],
+            'Medicine Name/ID': ['Panadol'],
+            'Dosage': ['500mg'],
+            'Sale Quantity': ['100'],
         }
         
         df = pd.DataFrame(template_data)
@@ -443,8 +522,8 @@ def download_sales_template():
 def upload_sales_data(**kwargs):
     """
     Upload sales data from Excel/CSV file
-    Expected columns: District, Formula, Medicine Brand, Dosage (optional), Date, Sale Quantity
-    Matches the manual entry fields
+    Expected columns: Date, Area, Formula, Medicine Name/ID, Dosage (optional), Sale Quantity
+    Medicine Name/ID accepts either medicine ID or brand name
     """
     g.current_user = kwargs.get('current_user')
     try:
@@ -472,10 +551,10 @@ def upload_sales_data(**kwargs):
         
         for idx, row in df.iterrows():
             try:
-                # Get or create district
-                district_name = str(row.get('district', '')).strip()
+                # Get or create district (accept both 'area' and 'district')
+                district_name = str(row.get('area', row.get('district', ''))).strip()
                 if not district_name:
-                    errors.append(f"Row {idx+2}: Missing district name")
+                    errors.append(f"Row {idx+2}: Missing area/district name")
                     continue
                 
                 district = District.query.filter_by(name=district_name).first()
@@ -495,31 +574,32 @@ def upload_sales_data(**kwargs):
                     errors.append(f"Row {idx+2}: Formula '{formula_name}' does not exist. Create it first in Manage Formulas.")
                     continue
                 
-                # Get medicine by brand and optional dosage
-                brand_name = str(row.get('medicine_brand', '')).strip()
+                # Get medicine by name/ID and optional dosage
+                medicine_identifier = str(row.get('medicine_name/id', row.get('medicine_name', row.get('medicine_brand', '')))).strip()
                 dosage = str(row.get('dosage', '')).strip()
                 
-                if not brand_name:
-                    errors.append(f"Row {idx+2}: Missing medicine brand")
+                if not medicine_identifier:
+                    errors.append(f"Row {idx+2}: Missing medicine name/ID")
                     continue
                 
-                # Query medicine by formula and brand
+                # Try to find medicine by brand name (medicine_id column removed)
+                # First try exact match with formula and brand name
                 query = Medicine.query.filter_by(
                     formula_id=formula.id,
-                    brand_name=brand_name
+                    brand_name=medicine_identifier
                 )
                 
                 # If dosage specified, filter by it
                 if dosage:
                     medicine = query.filter_by(dosage_strength=dosage).first()
                     if not medicine:
-                        errors.append(f"Row {idx+2}: Medicine '{brand_name}' with dosage '{dosage}' not found. Create it first in Manage Medicines.")
+                        errors.append(f"Row {idx+2}: Medicine '{medicine_identifier}' with dosage '{dosage}' not found. Create it first in Manage Medicines.")
                         continue
                 else:
                     # No dosage specified, use first available
                     medicine = query.first()
                     if not medicine:
-                        errors.append(f"Row {idx+2}: Medicine '{brand_name}' not found. Create it first in Manage Medicines.")
+                        errors.append(f"Row {idx+2}: Medicine '{medicine_identifier}' not found. Create it first in Manage Medicines.")
                         continue
                 
                 # Get date
@@ -627,10 +707,9 @@ def download_stock_template():
     try:
         # Create template with column headers
         template_data = {
-            'Medicine ID': ['MED001'],
+            'Medicine ID': ['1'],
             'Adjustment Type': ['ADD'],  # ADD or REDUCE
             'Quantity': ['100'],
-            'Reason': ['New Stock Arrival'],
         }
         
         df = pd.DataFrame(template_data)
@@ -667,7 +746,7 @@ def download_stock_template():
 def upload_stock_adjustments(**kwargs):
     """
     Upload stock adjustments from Excel/CSV file
-    Expected columns: Medicine ID, Adjustment Type (ADD/REDUCE), Quantity, Reason
+    Expected columns: Medicine Name/ID, Adjustment Type (ADD/REDUCE), Quantity
     """
     g.current_user = kwargs.get('current_user')
     try:
@@ -688,22 +767,29 @@ def upload_stock_adjustments(**kwargs):
             return jsonify({'error': 'Unsupported file format. Use CSV or Excel.'}), 400
         
         # Normalize column names
-        df.columns = [c.strip().lower().replace(' ', '_') for c in df.columns]
+        df.columns = [c.strip().lower().replace(' ', '_').replace('/', '_') for c in df.columns]
         
         records_processed = 0
         errors = []
         
         for idx, row in df.iterrows():
             try:
-                # Get medicine by medicine_id
-                medicine_id = str(row.get('medicine_id', '')).strip()
-                if not medicine_id:
-                    errors.append(f"Row {idx+2}: Missing medicine ID")
+                # Get medicine ID (must be numeric)
+                medicine_id_str = str(row.get('medicine_id', '')).strip()
+                if not medicine_id_str:
+                    errors.append(f"Row {idx+2}: Missing Medicine ID")
                     continue
                 
-                medicine = Medicine.query.filter_by(medicine_id=medicine_id).first()
+                # Validate that it's a numeric ID
+                if not medicine_id_str.isdigit():
+                    errors.append(f"Row {idx+2}: Medicine ID must be numeric (e.g., 1, 2, 3), got '{medicine_id_str}'")
+                    continue
+                
+                medicine_id = int(medicine_id_str)
+                medicine = Medicine.query.get(medicine_id)
+                
                 if not medicine:
-                    errors.append(f"Row {idx+2}: Medicine '{medicine_id}' not found")
+                    errors.append(f"Row {idx+2}: Medicine with ID {medicine_id} not found")
                     continue
                 
                 # Get adjustment type

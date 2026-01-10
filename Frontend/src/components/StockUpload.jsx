@@ -75,18 +75,29 @@ export default function StockUpload({ isOpen, onClose, onSuccess }) {
       const fileInput = document.getElementById("stock-file-input");
       if (fileInput) fileInput.value = "";
       
-      // Call success callback after a delay
-      setTimeout(() => {
-        onSuccess?.();
-        handleClose();
-      }, 2000);
+      // Call success callback but don't auto-close - let user read and close manually
+      onSuccess?.();
       
     } catch (err) {
+      console.error('Stock upload error:', err);
       const errorData = err.response?.data || {};
-      setError(
-        errorData.error || 
-        "Failed to upload file. Please check the format and try again."
-      );
+      
+      let errorMsg = "Failed to upload file. Please check the format and try again.";
+      
+      if (err.response) {
+        errorMsg = errorData.error || errorMsg;
+        
+        // Check for authentication errors
+        if (err.response.status === 401) {
+          errorMsg = "Authentication required. Please log in first.";
+        } else if (err.response.status === 403) {
+          errorMsg = "Access denied. You don't have permission to upload stock adjustments.";
+        }
+      } else if (err.request) {
+        errorMsg = "No response from server. Please check if the backend is running.";
+      }
+      
+      setError(errorMsg);
       
       // Display detailed validation errors if available
       if (errorData.errors && Array.isArray(errorData.errors)) {
@@ -140,10 +151,9 @@ export default function StockUpload({ isOpen, onClose, onSuccess }) {
               Download the Excel template with the following required columns:
             </p>
             <ul className="text-sm text-green-800 space-y-1 list-disc list-inside mb-4">
-              <li><strong>Medicine ID</strong> - Unique medicine identifier</li>
-              <li><strong>Adjustment Type</strong> - ADD or REDUCE</li>
-              <li><strong>Quantity</strong> - Number of units to adjust</li>
-              <li><strong>Reason</strong> - Reason for adjustment</li>
+              <li><strong>Medicine ID</strong> - Numeric ID from the Inventory page (e.g., 1, 2, 3)</li>
+              <li><strong>Adjustment Type</strong> - Either ADD or REDUCE</li>
+              <li><strong>Quantity</strong> - Number of units to adjust (positive integer)</li>
             </ul>
             <button
               onClick={handleDownloadTemplate}

@@ -146,6 +146,12 @@ export default function Home() {
                 About Us
               </button>
               <button
+                onClick={() => navigate('/infographic')}
+                className="font-medium text-gray-600 hover:text-primary-600 transition-colors"
+              >
+                Infographic
+              </button>
+              <button
                 onClick={() => navigate('/login')}
                 className="px-6 py-2 bg-gradient-to-r from-primary-500 to-secondary-500 text-white font-semibold rounded-full hover:shadow-lg hover:scale-105 transition-all"
               >

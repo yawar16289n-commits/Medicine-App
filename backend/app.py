@@ -10,11 +10,11 @@ from routes import api_bp
 
 load_dotenv()
 
-DB_USERNAME = os.getenv('DB_USERNAME')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_HOST = os.getenv('DB_HOST')
-DB_PORT = os.getenv('DB_PORT')
-DB_NAME = os.getenv('DB_NAME')
+DB_USERNAME = os.getenv('DB_USERNAME', 'root')
+DB_PASSWORD = os.getenv('DB_PASSWORD', '')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+DB_PORT = os.getenv('DB_PORT', '3306')
+DB_NAME = os.getenv('DB_NAME', 'medicines_db')
 
 SQLALCHEMY_DATABASE_URI = f"mysql+mysqlconnector://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}?charset=utf8mb4"
 

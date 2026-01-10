@@ -30,21 +30,22 @@ export default function InventoryPage() {
     fetchMedicines();
   }, []);
 
-  // Filter medicines by search term and stock level
+  // Filter medicines by search term and stock level (formula-based)
   const filteredMedicines = medicines.filter((m) => {
     const matchesSearch = Object.values(m).join(" ").toLowerCase().includes(searchTerm.toLowerCase());
+    const isFormulaLowStock = m.isFormulaLowStock || false;
     
     if (stockFilter === "all") return matchesSearch;
     if (stockFilter === "out") return matchesSearch && m.stockLevel === 0;
-    if (stockFilter === "low") return matchesSearch && m.stockLevel > 0 && m.stockLevel <= 100;
-    if (stockFilter === "in") return matchesSearch && m.stockLevel > 100;
+    if (stockFilter === "low") return matchesSearch && m.stockLevel > 0 && isFormulaLowStock;
+    if (stockFilter === "in") return matchesSearch && m.stockLevel > 0 && !isFormulaLowStock;
     
     return matchesSearch;
   });
 
-  // Calculate stock statistics
+  // Calculate stock statistics based on formula-level comparison
   const totalItems = medicines.length;
-  const lowStockItems = medicines.filter(m => m.stockLevel <= 100 && m.stockLevel > 0).length;
+  const lowStockItems = medicines.filter(m => m.stockLevel > 0 && m.isFormulaLowStock).length;
   const outOfStockItems = medicines.filter(m => m.stockLevel === 0).length;
 
   if (loading) {
@@ -214,10 +215,11 @@ export default function InventoryPage() {
               <tbody className="divide-y divide-gray-200">
                 {filteredMedicines.map((medicine) => {
                   const stockLevel = medicine.stockLevel || 0;
+                  const isFormulaLowStock = medicine.isFormulaLowStock || false;
                   let statusBadge;
                   if (stockLevel === 0) {
                     statusBadge = <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Out of Stock</span>;
-                  } else if (stockLevel <= 100) {
+                  } else if (isFormulaLowStock) {
                     statusBadge = <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">Low Stock</span>;
                   } else {
                     statusBadge = <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">In Stock</span>;
@@ -225,14 +227,14 @@ export default function InventoryPage() {
 
                   return (
                     <tr key={medicine.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{medicine.medicineId}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{medicine.id}</td>
+                                            <td className="px-6 py-4 text-sm text-gray-600">{medicine.formulaName}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{medicine.brandName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{medicine.formulaName}</td>
                       <td className="px-6 py-4 text-sm text-gray-600">{medicine.dosageStrength || 'N/A'}</td>
                       <td className="px-6 py-4 text-right">
                         <span className={`text-lg font-bold ${
                           stockLevel === 0 ? 'text-red-600' : 
-                          stockLevel <= 100 ? 'text-amber-600' : 
+                          isFormulaLowStock ? 'text-amber-600' : 
                           'text-green-600'
                         }`}>
                           {stockLevel}

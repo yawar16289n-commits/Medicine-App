@@ -70,17 +70,29 @@ export default function WeatherUpload({ isOpen, onClose, onSuccess }) {
       const fileInput = document.getElementById("weather-file-input");
       if (fileInput) fileInput.value = "";
       
-      // Call success callback after a delay
-      setTimeout(() => {
-        onSuccess?.();
-        handleClose();
-      }, 2000);
+      // Call success callback but don't auto-close - let user read and close manually
+      onSuccess?.();
       
     } catch (err) {
-      setError(
-        err.response?.data?.error || 
-        "Failed to upload file. Please check the format and try again."
-      );
+      console.error('Weather upload error:', err);
+      let errorMsg = "Failed to upload file. Please check the format and try again.";
+      
+      if (err.response) {
+        // Server responded with error
+        errorMsg = err.response.data?.error || err.response.data?.message || errorMsg;
+        
+        // Check for authentication errors
+        if (err.response.status === 401) {
+          errorMsg = "Authentication required. Please log in first.";
+        } else if (err.response.status === 403) {
+          errorMsg = "Access denied. Only Admin and Analyst users can upload weather data.";
+        }
+      } else if (err.request) {
+        // Request made but no response
+        errorMsg = "No response from server. Please check if the backend is running.";
+      }
+      
+      setError(errorMsg);
     } finally {
       setUploading(false);
     }

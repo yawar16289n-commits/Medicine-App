@@ -85,6 +85,7 @@ export const medicinesAPI = {
   update: (id, data) => api.put(`/api/medicines/${id}`, data),
   delete: (id) => api.delete(`/api/medicines/${id}`),
   upload: (formData) => uploadFile('/api/medicines/upload', formData),
+  getSalesRecords: (params) => api.get('/api/medicines/sales', { params }),
   createSalesRecord: (data) => api.post('/api/medicines/sales', data),
   uploadSales: (formData) => uploadFile('/api/medicines/sales/upload', formData),
   downloadSalesTemplate: () => api.get('/api/medicines/sales/template', { responseType: 'blob' }),
@@ -103,6 +104,9 @@ export const forecastAPI = {
     api.get(`/api/forecast/district/${districtName}`, { params }),
   getAreaFormulaForecast: (params) =>
     api.get('/api/forecast', { params }), // area, formula, days
+  // Get areas/formulas with sales data for forecast dropdowns
+  getAvailableAreas: () => api.get('/api/forecast/metadata/areas'),
+  getAvailableFormulas: (area) => api.get('/api/forecast/metadata/formulas', { params: { area } }),
 };
 
 export const weatherAPI = {

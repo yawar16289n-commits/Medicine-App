@@ -1,9 +1,0 @@
-Date,Brand Name,Generic / Formula Name,Area,Dosage / Strength,Therapeutic Class,Units Sold,Unnamed: 0,temperature_2m_mean,temperature_2m_min,temperature_2m_max,precipitation_sum,relative_humidity_2m_mean,relative_humidity_2m_max,relative_humidity_2m_min,apparent_temperature_mean,apparent_temperature_max,apparent_temperature_min
-2023-10-02,Panadol,Paracetamol,clifton,100 µg inhaler,Analgesic,19,275.0,28.26458,24.95,31.8,0.0,83.73141,98.81331,65.34931,33.14216,36.10377,30.525177
-2023-01-04,Panadol,Paracetamol,clifton,50 mg tablet,Analgesic,18,4.0,17.45625,12.75,22.75,0.0,31.661814,47.370945,15.68629,12.442882,16.134523,8.382684
-2023-06-05,Panadol,Paracetamol,clifton,250 mg tablet,Analgesic,9,156.0,30.360415,28.25,33.15,0.0,81.21346,91.32627,67.00828,35.173794,37.876675,33.252136
-2023-12-05,Panadol,Paracetamol,clifton,200 mg tablet,Analgesic,3,339.0,21.525,16.25,28.2,0.0,42.563,62.66013,19.062162,18.50134,23.873922,13.901262
-2023-12-06,Panadol,Paracetamol,clifton,250 mg tablet,Analgesic,17,340.0,21.59167,16.1,28.0,0.0,40.392838,58.068047,21.309977,18.556423,23.810204,13.540529
-2023-06-07,Panadol,Paracetamol,clifton,200 mg tablet,Analgesic,41,158.0,30.310417,28.7,32.6,0.0,77.533,88.198875,64.94066,34.764652,36.453156,33.467426
-2024-04-12,Panadol,Paracetamol,clifton,100 µg inhaler,Analgesic,16,468.0,27.877085,25.0,32.0,0.0,77.64754,95.33709,54.5562,31.573067,35.279236,29.396317
-2025-10-09,Panadol,Paracetamol,clifton,100 µg inhaler,Analgesic,16,,,,,,,,,,,

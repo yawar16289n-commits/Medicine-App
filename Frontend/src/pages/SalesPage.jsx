@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import MedicineForm from "../components/MedicineForm";
-import MedicineTable from "../components/MedicineTable";
+import SalesTable from "../components/SalesTable";
 import FileUpload from "../components/FileUpload";
 import SalesUpload from "../components/SalesUpload";
 import { useAuth } from "../contexts/AuthContext";
@@ -8,7 +8,7 @@ import { medicinesAPI } from "../utils/api";
 import { MEDICINES_PER_PAGE } from "../utils/constants";
 
 export default function SalesPage() {
-  const [medicines, setMedicines] = useState([]);
+  const [salesRecords, setSalesRecords] = useState([]);
   const [editing, setEditing] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -16,28 +16,26 @@ export default function SalesPage() {
   const [salesUploadOpen, setSalesUploadOpen] = useState(false);
   const { user } = useAuth();
 
-  // Fetch all medicines
-  const fetchMedicines = async () => {
+  // Fetch all sales records
+  const fetchSalesRecords = async () => {
     try {
-      const res = await medicinesAPI.getAll();
-      // Convert grouped object to flat array
-      const allMeds = Object.values(res.data).flat();
-      setMedicines(allMeds);
+      const res = await medicinesAPI.getSalesRecords({ limit: 5000 }); // Get recent 5000 records
+      setSalesRecords(res.data);
     } catch (err) {
-      console.error("Error fetching medicines:", err);
+      console.error("Error fetching sales records:", err);
     }
   };
 
   useEffect(() => {
-    fetchMedicines();
+    fetchSalesRecords();
   }, []);
 
   // Add new sales record
   const addMedicine = async (newMedicine) => {
     try {
       const res = await medicinesAPI.createSalesRecord(newMedicine);
-      // Refresh medicine list to show updated stock
-      fetchMedicines();
+      // Refresh sales records list
+      fetchSalesRecords();
       alert(res.data.message || 'Sales record added successfully');
     } catch (err) {
       alert(err.response?.data?.error || 'Error adding sales record');
@@ -49,8 +47,8 @@ export default function SalesPage() {
   const updateMedicine = async (updatedMedicine) => {
     try {
       const res = await medicinesAPI.createSalesRecord(updatedMedicine);
-      // Refresh medicine list to show updated stock
-      fetchMedicines();
+      // Refresh sales records list
+      fetchSalesRecords();
       setEditing(false);
       setCurrentIndex(null);
       alert(res.data.message || 'Sales record updated successfully');
@@ -64,7 +62,7 @@ export default function SalesPage() {
   const deleteMedicine = async (id) => {
     try {
       await medicinesAPI.delete(id);
-      setMedicines(medicines.filter((m) => m.id !== id));
+      setSalesRecords(salesRecords.filter((m) => m.id !== id));
       setEditing(false);
     } catch (err) {
       console.error("Error deleting medicine:", err);
@@ -74,26 +72,26 @@ export default function SalesPage() {
   // Start editing
   const startEdit = (medicine) => {
     setEditing(true);
-    const index = medicines.findIndex((m) => m.id === medicine.id);
+    const index = salesRecords.findIndex((m) => m.id === medicine.id);
     setCurrentIndex(index);
   };
 
   // Search + Pagination (memoized for performance)
-  const filteredMedicines = useMemo(
-    () => medicines.filter((m) =>
+  const filteredRecords = useMemo(
+    () => salesRecords.filter((m) =>
       Object.values(m).join(" ").toLowerCase().includes(searchTerm.toLowerCase())
     ),
-    [medicines, searchTerm]
+    [salesRecords, searchTerm]
   );
 
   const { currentMedicines, totalPages } = useMemo(() => {
     const indexOfLast = currentPage * MEDICINES_PER_PAGE;
     const indexOfFirst = indexOfLast - MEDICINES_PER_PAGE;
     return {
-      currentMedicines: filteredMedicines.slice(indexOfFirst, indexOfLast),
-      totalPages: Math.ceil(filteredMedicines.length / MEDICINES_PER_PAGE),
+      currentMedicines: filteredRecords.slice(indexOfFirst, indexOfLast),
+      totalPages: Math.ceil(filteredRecords.length / MEDICINES_PER_PAGE),
     };
-  }, [filteredMedicines, currentPage]);
+  }, [filteredRecords, currentPage]);
 
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
@@ -147,7 +145,7 @@ export default function SalesPage() {
                 onAdd={addMedicine}
                 onUpdate={updateMedicine}
                 editing={editing}
-                currentMedicine={editing ? medicines[currentIndex] : null}
+                currentMedicine={editing ? salesRecords[currentIndex] : null}
               />
             </div>
           </>
@@ -169,14 +167,14 @@ export default function SalesPage() {
             <span className="absolute left-4 top-4 text-gray-400 text-xl">🔍</span>
           </div>
           <p className="text-sm text-gray-600 mt-2">
-            Found {filteredMedicines.length} medicine{filteredMedicines.length !== 1 ? 's' : ''}
+            Found {filteredRecords.length} sale record{filteredRecords.length !== 1 ? 's' : ''}
           </p>
         </div>
 
-        {/* ====== Medicine Table ====== */}
+        {/* ====== Sales Records Table ====== */}
         <div className="bg-white p-6 rounded-xl shadow-md mb-6">
-          <MedicineTable
-            medicines={currentMedicines}
+          <SalesTable
+            salesRecords={currentMedicines}
             onDelete={deleteMedicine}
             onEdit={startEdit}
           />
@@ -194,19 +192,51 @@ export default function SalesPage() {
             </button>
             
             <div className="flex space-x-1">
-              {Array.from({ length: totalPages }, (_, i) => (
-                <button
-                  key={i}
-                  onClick={() => paginate(i + 1)}
-                  className={`px-4 py-2 rounded-lg font-medium transition-all ${
-                    currentPage === i + 1
-                      ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-md'
-                      : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
-                  }`}
-                >
-                  {i + 1}
-                </button>
-              ))}
+              {/* Show first page */}
+              {currentPage > 3 && (
+                <>
+                  <button
+                    onClick={() => paginate(1)}
+                    className="px-4 py-2 rounded-lg font-medium transition-all bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    1
+                  </button>
+                  <span className="px-2 py-2 text-gray-500">...</span>
+                </>
+              )}
+
+              {/* Show pages around current page */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page => {
+                  // Show current page and 2 pages before and after
+                  return page >= currentPage - 2 && page <= currentPage + 2;
+                })
+                .map(page => (
+                  <button
+                    key={page}
+                    onClick={() => paginate(page)}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all ${
+                      currentPage === page
+                        ? 'bg-gradient-to-r from-primary-500 to-secondary-500 text-white shadow-md'
+                        : 'bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+
+              {/* Show last page */}
+              {currentPage < totalPages - 2 && (
+                <>
+                  <span className="px-2 py-2 text-gray-500">...</span>
+                  <button
+                    onClick={() => paginate(totalPages)}
+                    className="px-4 py-2 rounded-lg font-medium transition-all bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
             </div>
             
             <button
@@ -224,7 +254,7 @@ export default function SalesPage() {
       <SalesUpload 
         isOpen={salesUploadOpen} 
         onClose={() => setSalesUploadOpen(false)} 
-        onSuccess={fetchMedicines} 
+        onSuccess={fetchSalesRecords} 
       />
     </div>
   );

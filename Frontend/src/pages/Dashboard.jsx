@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { medicinesAPI } from "../utils/api";
 import RecentActivity from "../components/RecentActivity";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -10,6 +11,7 @@ export default function Dashboard() {
     inStock: 0
   });
   const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     fetchMedicineStats();
@@ -20,19 +22,19 @@ export default function Dashboard() {
       const response = await medicinesAPI.getAll();
       const medicines = Object.values(response.data).flat();
       
-      // Calculate stats based on forecast comparison
+      // Calculate stats based on formula-level stock comparison
       let lowStockCount = 0;
       let outOfStockCount = 0;
       let inStockCount = 0;
 
       medicines.forEach(medicine => {
         const stock = medicine.stockLevel || 0;
-        const forecast = medicine.forecast || 0;
+        const isFormulaLowStock = medicine.isFormulaLowStock || false;
         
         if (stock === 0) {
           outOfStockCount++;
-        } else if (stock < forecast || stock <= 100) {
-          // Low stock: current stock is less than forecast demand or <= 100
+        } else if (isFormulaLowStock) {
+          // Low stock: formula's total stock < formula's total forecast
           lowStockCount++;
         } else {
           inStockCount++;
@@ -158,8 +160,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <RecentActivity />
+        {/* Recent Activity - Only for Admin */}
+        {user?.role === 'admin' && <RecentActivity />}
       </div>
     </div>
   );
