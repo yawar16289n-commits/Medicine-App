@@ -83,7 +83,7 @@ def create_medicine(**kwargs):
 def get_medicines():
     """
     Get all medicines grouped by formula name.
-    Includes 14-day forecast and formula-level stock status.
+    Includes 14-day forecast.
     
     Returns:
         {
@@ -95,10 +95,7 @@ def get_medicines():
                     "brandName": "Brand X",
                     "dosageStrength": "500mg",
                     "createdAt": "2024-01-01T00:00:00",
-                    "forecast14Days": 150,
-                    "formulaTotalStock": 500,
-                    "formulaTotalForecast": 450,
-                    "isFormulaLowStock": false
+                    "forecast14Days": 150
                 }
             ]
         }
@@ -124,26 +121,6 @@ def get_medicines():
     
     # Create a dictionary of medicine_id -> total forecast (sum of all areas)
     forecast_map = {row[0]: row[1] for row in forecast_query}
-    
-    # Calculate formula-level totals (total stock and forecast per formula)
-    formula_totals = {}
-    for med in medicines:
-        formula_id = med.formula_id
-        if formula_id not in formula_totals:
-            formula_totals[formula_id] = {
-                'total_stock': 0,
-                'total_forecast': 0
-            }
-        formula_totals[formula_id]['total_stock'] += (med.stock_level or 0)
-        formula_totals[formula_id]['total_forecast'] += forecast_map.get(med.id, 0)
-    
-    # Debug: Print formula-level aggregation
-    print(f"[DEBUG] Formula-level stock analysis:")
-    for formula_id, totals in formula_totals.items():
-        formula = Formula.query.get(formula_id)
-        if formula:
-            status = "LOW STOCK" if totals['total_stock'] < totals['total_forecast'] else "OK"
-            print(f"  {formula.name}: Stock={totals['total_stock']}, Forecast={totals['total_forecast']} [{status}]")
 
     grouped = {}
     for med in medicines:
@@ -154,12 +131,6 @@ def get_medicines():
         med_dict = med.to_dict()
         # Add individual medicine forecast
         med_dict['forecast14Days'] = forecast_map.get(med.id, 0)
-        
-        # Add formula-level totals
-        formula_total = formula_totals.get(med.formula_id, {'total_stock': 0, 'total_forecast': 0})
-        med_dict['formulaTotalStock'] = formula_total['total_stock']
-        med_dict['formulaTotalForecast'] = formula_total['total_forecast']
-        med_dict['isFormulaLowStock'] = formula_total['total_stock'] < formula_total['total_forecast']
         
         grouped[formula_name].append(med_dict)
 
@@ -254,6 +225,79 @@ def delete_medicine(id, **kwargs):
         )
     
     return jsonify({"message": "Medicine deleted successfully"}), 200
+
+
+@medicines_bp.route('/medicines/stats', methods=['GET'])
+def get_medicine_stats():
+    """
+    Get medicine statistics optimized for dashboard.
+    Much faster than fetching all medicines and calculating on frontend.
+    
+    Returns:
+        {
+            "total": 150,
+            "lowStock": 20,
+            "outOfStock": 5,
+            "inStock": 125
+        }
+    """
+    from datetime import datetime, timedelta
+    from sqlalchemy import func
+    
+    try:
+        # Get all medicines
+        medicines = Medicine.query.all()
+        total = len(medicines)
+        
+        if total == 0:
+            return jsonify({
+                "total": 0,
+                "lowStock": 0,
+                "outOfStock": 0,
+                "inStock": 0
+            }), 200
+        
+        # Calculate 14-day forecast window
+        today = date.today()
+        forecast_end = today + timedelta(days=14)
+        
+        # Get all forecast data for the next 14 days
+        forecast_query = db.session.query(
+            MedicineForecast.medicine_id,
+            func.sum(MedicineForecast.forecasted_quantity).label('total_forecast')
+        ).filter(
+            MedicineForecast.forecast_date >= today,
+            MedicineForecast.forecast_date < forecast_end
+        ).group_by(MedicineForecast.medicine_id).all()
+        
+        forecast_map = {row[0]: row[1] for row in forecast_query}
+        
+        # Count medicines in each category
+        out_of_stock = 0
+        low_stock = 0
+        in_stock = 0
+        
+        for medicine in medicines:
+            stock = medicine.stock_level if medicine.stock_level is not None else 0
+            forecast = forecast_map.get(medicine.id, 0)
+            
+            if stock == 0:
+                out_of_stock += 1
+            elif stock < forecast:
+                # Low stock: current stock is less than 14-day forecast
+                low_stock += 1
+            else:
+                in_stock += 1
+        
+        return jsonify({
+            "total": total,
+            "lowStock": low_stock,
+            "outOfStock": out_of_stock,
+            "inStock": in_stock
+        }), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 @medicines_bp.route('/medicines/upload', methods=['POST'])

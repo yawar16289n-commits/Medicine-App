@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { medicinesAPI } from "../utils/api";
 import RecentActivity from "../components/RecentActivity";
 import { useAuth } from "../contexts/AuthContext";
@@ -19,33 +19,13 @@ export default function Dashboard() {
 
   const fetchMedicineStats = async () => {
     try {
-      const response = await medicinesAPI.getAll();
-      const medicines = Object.values(response.data).flat();
+      const response = await medicinesAPI.getStats();
       
-      // Calculate stats based on formula-level stock comparison
-      let lowStockCount = 0;
-      let outOfStockCount = 0;
-      let inStockCount = 0;
-
-      medicines.forEach(medicine => {
-        const stock = medicine.stockLevel || 0;
-        const isFormulaLowStock = medicine.isFormulaLowStock || false;
-        
-        if (stock === 0) {
-          outOfStockCount++;
-        } else if (isFormulaLowStock) {
-          // Low stock: formula's total stock < formula's total forecast
-          lowStockCount++;
-        } else {
-          inStockCount++;
-        }
-      });
-
       setStats({
-        total: medicines.length,
-        lowStock: lowStockCount,
-        outOfStock: outOfStockCount,
-        inStock: inStockCount
+        total: response.data.total,
+        lowStock: response.data.lowStock,
+        outOfStock: response.data.outOfStock,
+        inStock: response.data.inStock
       });
       setLoading(false);
     } catch (error) {

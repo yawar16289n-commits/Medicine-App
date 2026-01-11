@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { medicinesAPI } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 import StockUpload from "../components/StockUpload";
@@ -9,6 +9,8 @@ export default function InventoryPage() {
   const [stockFilter, setStockFilter] = useState("all");
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
   const { user } = useAuth();
 
   // Fetch all medicines with stock levels
@@ -30,31 +32,40 @@ export default function InventoryPage() {
     fetchMedicines();
   }, []);
 
-  // Filter medicines by search term and stock level (formula-based)
-  const filteredMedicines = medicines.filter((m) => {
-    const matchesSearch = Object.values(m).join(" ").toLowerCase().includes(searchTerm.toLowerCase());
-    const isFormulaLowStock = m.isFormulaLowStock || false;
-    
-    if (stockFilter === "all") return matchesSearch;
-    if (stockFilter === "out") return matchesSearch && m.stockLevel === 0;
-    if (stockFilter === "low") return matchesSearch && m.stockLevel > 0 && isFormulaLowStock;
-    if (stockFilter === "in") return matchesSearch && m.stockLevel > 0 && !isFormulaLowStock;
-    
-    return matchesSearch;
-  });
+  // Memoize filtered medicines to avoid recalculating on every render
+  const filteredMedicines = useMemo(() => {
+    return medicines.filter((m) => {
+      const matchesSearch = Object.values(m).join(" ").toLowerCase().includes(searchTerm.toLowerCase());
+      const isFormulaLowStock = m.isFormulaLowStock || false;
+      
+      if (stockFilter === "all") return matchesSearch;
+      if (stockFilter === "out") return matchesSearch && m.stockLevel === 0;
+      if (stockFilter === "low") return matchesSearch && m.stockLevel > 0 && isFormulaLowStock;
+      if (stockFilter === "in") return matchesSearch && m.stockLevel > 0 && !isFormulaLowStock;
+      
+      return matchesSearch;
+    });
+  }, [medicines, searchTerm, stockFilter]);
 
-  // Calculate stock statistics based on formula-level comparison
-  const totalItems = medicines.length;
-  const lowStockItems = medicines.filter(m => m.stockLevel > 0 && m.isFormulaLowStock).length;
-  const outOfStockItems = medicines.filter(m => m.stockLevel === 0).length;
+  // Paginate filtered results
+  const totalPages = Math.ceil(filteredMedicines.length / itemsPerPage);
+  const paginatedMedicines = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredMedicines.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredMedicines, currentPage]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-      </div>
-    );
-  }
+  // Reset to page 1 when filter or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, stockFilter]);
+
+  // Memoize stock statistics to avoid recalculating
+  const stockStats = useMemo(() => {
+    const totalItems = medicines.length;
+    const lowStockItems = medicines.filter(m => m.stockLevel > 0 && m.isFormulaLowStock).length;
+    const outOfStockItems = medicines.filter(m => m.stockLevel === 0).length;
+    return { totalItems, lowStockItems, outOfStockItems };
+  }, [medicines]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -104,7 +115,11 @@ export default function InventoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-blue-100 text-sm font-medium">Total Items</p>
-                <p className="text-4xl font-bold mt-2">{totalItems}</p>
+                {loading ? (
+                  <div className="h-10 w-20 bg-white bg-opacity-20 rounded animate-pulse mt-2"></div>
+                ) : (
+                  <p className="text-4xl font-bold mt-2">{stockStats.totalItems}</p>
+                )}
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-4">
                 <span className="text-4xl">📊</span>
@@ -116,7 +131,11 @@ export default function InventoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-amber-100 text-sm font-medium">Low Stock</p>
-                <p className="text-4xl font-bold mt-2">{lowStockItems}</p>
+                {loading ? (
+                  <div className="h-10 w-20 bg-white bg-opacity-20 rounded animate-pulse mt-2"></div>
+                ) : (
+                  <p className="text-4xl font-bold mt-2">{stockStats.lowStockItems}</p>
+                )}
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-4">
                 <span className="text-4xl">⚠️</span>
@@ -128,7 +147,11 @@ export default function InventoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-red-100 text-sm font-medium">Out of Stock</p>
-                <p className="text-4xl font-bold mt-2">{outOfStockItems}</p>
+                {loading ? (
+                  <div className="h-10 w-20 bg-white bg-opacity-20 rounded animate-pulse mt-2"></div>
+                ) : (
+                  <p className="text-4xl font-bold mt-2">{stockStats.outOfStockItems}</p>
+                )}
               </div>
               <div className="bg-white bg-opacity-20 rounded-full p-4">
                 <span className="text-4xl">❌</span>
@@ -213,46 +236,100 @@ export default function InventoryPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {filteredMedicines.map((medicine) => {
-                  const stockLevel = medicine.stockLevel || 0;
-                  const isFormulaLowStock = medicine.isFormulaLowStock || false;
-                  let statusBadge;
-                  if (stockLevel === 0) {
-                    statusBadge = <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Out of Stock</span>;
-                  } else if (isFormulaLowStock) {
-                    statusBadge = <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">Low Stock</span>;
-                  } else {
-                    statusBadge = <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">In Stock</span>;
-                  }
-
-                  return (
-                    <tr key={medicine.id} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{medicine.id}</td>
-                                            <td className="px-6 py-4 text-sm text-gray-600">{medicine.formulaName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">{medicine.brandName}</td>
-                      <td className="px-6 py-4 text-sm text-gray-600">{medicine.dosageStrength || 'N/A'}</td>
-                      <td className="px-6 py-4 text-right">
-                        <span className={`text-lg font-bold ${
-                          stockLevel === 0 ? 'text-red-600' : 
-                          isFormulaLowStock ? 'text-amber-600' : 
-                          'text-green-600'
-                        }`}>
-                          {stockLevel}
-                        </span>
+                {loading ? (
+                  // Skeleton loading rows
+                  Array.from({ length: 10 }).map((_, idx) => (
+                    <tr key={`skeleton-${idx}`} className="animate-pulse">
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-16"></div>
                       </td>
-                      <td className="px-6 py-4 text-center">{statusBadge}</td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-32"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-40"></div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-24"></div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <div className="h-6 bg-gray-200 rounded w-12 ml-auto"></div>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <div className="h-6 bg-gray-200 rounded-full w-24 mx-auto"></div>
+                      </td>
                     </tr>
-                  );
-                })}
+                  ))
+                ) : (
+                  paginatedMedicines.map((medicine) => {
+                    const stockLevel = medicine.stockLevel || 0;
+                    const isFormulaLowStock = medicine.isFormulaLowStock || false;
+                    let statusBadge;
+                    if (stockLevel === 0) {
+                      statusBadge = <span className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-semibold">Out of Stock</span>;
+                    } else if (isFormulaLowStock) {
+                      statusBadge = <span className="px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold">Low Stock</span>;
+                    } else {
+                      statusBadge = <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">In Stock</span>;
+                    }
+
+                    return (
+                      <tr key={medicine.id} className="hover:bg-gray-50 transition-colors">
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{medicine.id}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{medicine.formulaName}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{medicine.brandName}</td>
+                        <td className="px-6 py-4 text-sm text-gray-600">{medicine.dosageStrength || 'N/A'}</td>
+                        <td className="px-6 py-4 text-right">
+                          <span className={`text-lg font-bold ${
+                            stockLevel === 0 ? 'text-red-600' : 
+                            isFormulaLowStock ? 'text-amber-600' : 
+                            'text-green-600'
+                          }`}>
+                            {stockLevel}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-center">{statusBadge}</td>
+                      </tr>
+                    );
+                  })
+                )}
               </tbody>
             </table>
             
-            {filteredMedicines.length === 0 && (
+            {!loading && filteredMedicines.length === 0 && (
               <div className="text-center py-12">
                 <p className="text-gray-500 text-lg">No medicines found</p>
               </div>
             )}
           </div>
+          
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+              <div className="text-sm text-gray-600">
+                Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredMedicines.length)} of {filteredMedicines.length} medicines
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  ← Previous
+                </button>
+                <span className="px-4 py-2 bg-primary-500 text-white rounded-lg font-medium">
+                  {currentPage} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

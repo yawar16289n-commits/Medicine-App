@@ -80,6 +80,7 @@ export const usersAPI = {
 
 export const medicinesAPI = {
   getAll: () => api.get('/api/medicines'),
+  getStats: () => api.get('/api/medicines/stats'),
   getById: (id) => api.get(`/api/medicines/${id}`),
   create: (data) => api.post('/api/medicines', data),
   update: (id, data) => api.put(`/api/medicines/${id}`, data),

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { districtsAPI, formulasAPI, medicinesAPI } from '../utils/api';
 
 function MasterDataPage() {
@@ -7,6 +7,11 @@ function MasterDataPage() {
   const [formulas, setFormulas] = useState([]);
   const [medicines, setMedicines] = useState([]);
   const [loading, setLoading] = useState(false);
+  
+  // Track which data has been loaded to avoid re-fetching
+  const [areasLoaded, setAreasLoaded] = useState(false);
+  const [formulasLoaded, setFormulasLoaded] = useState(false);
+  const [medicinesLoaded, setMedicinesLoaded] = useState(false);
   
   // Modal states
   const [showAreaModal, setShowAreaModal] = useState(false);
@@ -18,9 +23,67 @@ function MasterDataPage() {
   const [editingFormula, setEditingFormula] = useState(null);
   const [editingMedicine, setEditingMedicine] = useState(null);
 
+  // Load areas data on initial mount (default tab)
   useEffect(() => {
-    fetchAllData();
+    fetchAreas();
   }, []);
+
+  // Load data when tab changes
+  useEffect(() => {
+    if (activeTab === 'areas' && !areasLoaded) {
+      fetchAreas();
+    } else if (activeTab === 'formulas' && !formulasLoaded) {
+      fetchFormulas();
+    } else if (activeTab === 'medicines' && !medicinesLoaded) {
+      fetchMedicines();
+    }
+  }, [activeTab]);
+
+  const fetchAreas = async () => {
+    if (areasLoaded) return;
+    setLoading(true);
+    try {
+      const areasRes = await districtsAPI.getAll();
+      setAreas(areasRes.data || []);
+      setAreasLoaded(true);
+    } catch (err) {
+      console.error('Error fetching areas:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchFormulas = async () => {
+    if (formulasLoaded) return;
+    setLoading(true);
+    try {
+      const formulasRes = await formulasAPI.getAll();
+      setFormulas(formulasRes.data || []);
+      setFormulasLoaded(true);
+    } catch (err) {
+      console.error('Error fetching formulas:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchMedicines = async () => {
+    if (medicinesLoaded) return;
+    setLoading(true);
+    try {
+      const medicinesRes = await medicinesAPI.getAll();
+      // Medicines API returns grouped by formula, need to flatten
+      const medicinesData = medicinesRes.data 
+        ? Object.values(medicinesRes.data).flat() 
+        : [];
+      setMedicines(medicinesData);
+      setMedicinesLoaded(true);
+    } catch (err) {
+      console.error('Error fetching medicines:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fetchAllData = async () => {
     setLoading(true);
@@ -37,6 +100,9 @@ function MasterDataPage() {
         ? Object.values(medicinesRes.data).flat() 
         : [];
       setMedicines(medicinesData);
+      setAreasLoaded(true);
+      setFormulasLoaded(true);
+      setMedicinesLoaded(true);
     } catch (err) {
       console.error('Error fetching data:', err);
     } finally {
@@ -240,14 +306,13 @@ function AreasTable({ areas, onAdd, onEdit, onDelete }) {
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Area Name</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Area Code</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Created At</th>
               <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {areas.length === 0 ? (
               <tr>
-                <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
+                <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
                   No areas found. Click "Add Area" to create one.
                 </td>
               </tr>
@@ -257,9 +322,6 @@ function AreasTable({ areas, onAdd, onEdit, onDelete }) {
                   <td className="px-4 py-3 text-sm">{area.id}</td>
                   <td className="px-4 py-3 font-semibold">{area.name}</td>
                   <td className="px-4 py-3 text-sm">{area.areaCode || '-'}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {new Date(area.createdAt).toLocaleDateString()}
-                  </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => onEdit(area)}
@@ -304,14 +366,13 @@ function FormulasTable({ formulas, onAdd, onEdit, onDelete }) {
             <tr className="bg-gray-100">
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">ID</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Formula Name</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Created At</th>
               <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
             </tr>
           </thead>
           <tbody>
             {formulas.length === 0 ? (
               <tr>
-                <td colSpan="4" className="px-4 py-8 text-center text-gray-500">
+                <td colSpan="3" className="px-4 py-8 text-center text-gray-500">
                   No formulas found. Click "Add Formula" to create one.
                 </td>
               </tr>
@@ -320,9 +381,6 @@ function FormulasTable({ formulas, onAdd, onEdit, onDelete }) {
                 <tr key={formula.id} className="border-b hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm">{formula.id}</td>
                   <td className="px-4 py-3 font-semibold">{formula.name}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600">
-                    {new Date(formula.createdAt).toLocaleDateString()}
-                  </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       onClick={() => onEdit(formula)}
@@ -368,7 +426,6 @@ function MedicinesTable({ medicines, onAdd, onEdit, onDelete }) {
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Medicine ID</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Brand Name</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Formula</th>
-              <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Therapeutic Class</th>
               <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Dosage</th>
               <th className="px-4 py-3 text-center text-sm font-semibold text-gray-700">Actions</th>
             </tr>
@@ -376,7 +433,7 @@ function MedicinesTable({ medicines, onAdd, onEdit, onDelete }) {
           <tbody>
             {medicines.length === 0 ? (
               <tr>
-                <td colSpan="6" className="px-4 py-8 text-center text-gray-500">
+                <td colSpan="5" className="px-4 py-8 text-center text-gray-500">
                   No medicines found. Click "Add Medicine" to create one.
                 </td>
               </tr>
@@ -386,7 +443,6 @@ function MedicinesTable({ medicines, onAdd, onEdit, onDelete }) {
                   <td className="px-4 py-3 text-sm font-mono">{medicine.id}</td>
                   <td className="px-4 py-3 font-semibold">{medicine.brandName}</td>
                   <td className="px-4 py-3 text-sm">{medicine.formulaName}</td>
-                  <td className="px-4 py-3 text-sm">{medicine.therapeuticClass || '-'}</td>
                   <td className="px-4 py-3 text-sm">{medicine.dosageStrength || '-'}</td>
                   <td className="px-4 py-3 text-center">
                     <button
@@ -568,8 +624,7 @@ function MedicineModal({ medicine, formulas, onClose, onSuccess }) {
     medicineId: medicine?.medicineId || '',
     brandName: medicine?.brandName || '',
     formulaId: medicine?.formulaId || '',
-    dosageStrength: medicine?.dosageStrength || '',
-    therapeuticClass: medicine?.therapeuticClass || ''
+    dosageStrength: medicine?.dosageStrength || ''
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -582,8 +637,7 @@ function MedicineModal({ medicine, formulas, onClose, onSuccess }) {
         const payload = {
           brandName: formData.brandName,
           formulaId: parseInt(formData.formulaId),
-          dosageStrength: formData.dosageStrength,
-          therapeuticClass: formData.therapeuticClass
+          dosageStrength: formData.dosageStrength
         };
         await medicinesAPI.update(medicine.id, payload);
       } else {
@@ -591,8 +645,7 @@ function MedicineModal({ medicine, formulas, onClose, onSuccess }) {
         const payload = {
           brandName: formData.brandName,
           formulaId: parseInt(formData.formulaId),
-          dosageStrength: formData.dosageStrength,
-          therapeuticClass: formData.therapeuticClass
+          dosageStrength: formData.dosageStrength
         };
         await medicinesAPI.create(payload);
       }
@@ -655,19 +708,6 @@ function MedicineModal({ medicine, formulas, onClose, onSuccess }) {
                 onChange={(e) => setFormData({ ...formData, dosageStrength: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 placeholder="e.g., 100mg"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Therapeutic Class
-              </label>
-              <input
-                type="text"
-                value={formData.therapeuticClass}
-                onChange={(e) => setFormData({ ...formData, therapeuticClass: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                placeholder="e.g., Analgesic"
               />
             </div>
           </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import MedicineForm from "../components/MedicineForm";
 import SalesTable from "../components/SalesTable";
 import FileUpload from "../components/FileUpload";

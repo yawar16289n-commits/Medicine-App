@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { medicinesAPI, formulasAPI } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -238,12 +238,6 @@ export default function MedicineManager() {
                       <div className="flex justify-between text-sm">
                         <span className="text-gray-600">Dosage:</span>
                         <span className="font-medium text-gray-900">{medicine.dosageStrength}</span>
-                      </div>
-                    )}
-                    {medicine.therapeuticClass && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Class:</span>
-                        <span className="font-medium text-gray-900">{medicine.therapeuticClass}</span>
                       </div>
                     )}
                   </div>

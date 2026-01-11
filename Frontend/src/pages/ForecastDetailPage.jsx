@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { districtsAPI, forecastAPI, formulasAPI } from "../utils/api";
 import ForecastChart from "../components/ForecastChart";
@@ -66,16 +66,12 @@ function ForecastDetailPage() {
   
   const fetchForecastData = async (areaName, formName) => {
     try {
-      console.log(`[FetchForecast] Requesting forecast for ${areaName}/${formName} with ${forecastRange} days`);
       const response = await forecastAPI.getAreaFormulaForecast({
         area: areaName,
         formula: formName.replace(/ /g, '_'),
         days: parseInt(forecastRange)
       });
       
-      console.log('[FetchForecast] API Response:', response.data);
-      console.log('[FetchForecast] Summary:', response.data.summary);
-      console.log('[FetchForecast] Forecast array length:', response.data.forecast?.length);
       setForecastData(response.data);
     } catch (err) {
       console.error("Error fetching forecast data:", err);
@@ -147,11 +143,6 @@ function ForecastDetailPage() {
 
     // UX: when historical is enabled, show historical ONLY (hide forecast line)
     const chartForecastData = historicalRange.enabled ? [] : (forecastData.forecast || []);
-    console.log('[ChartData] Historical points:', historical.length);
-    console.log('[ChartData] Forecast points:', chartForecastData.length);
-    if (chartForecastData.length > 0) {
-      console.log('[ChartData] Sample forecast point:', chartForecastData[0]);
-    }
     
     setChartData({
       historical,
@@ -163,25 +154,15 @@ function ForecastDetailPage() {
   }, [forecastData, historicalRange.enabled, historicalRange.start, historicalRange.end]);
 
   const calculateComparison = (historical, forecast) => {
-    console.log('Calculate Comparison called');
-    console.log('Historical data length:', historical.length);
-    console.log('Forecast data length:', forecast.length);
-    
     if (!historical.length || !forecast.length) {
-      console.log('No data available for comparison');
       setComparisonAnalysis(null);
       return;
     }
-
-    console.log('Sample historical data:', historical.slice(0, 2));
-    console.log('Sample forecast data:', forecast.slice(0, 2));
 
     // Get forecast dates
     const forecastDates = forecast.map(f => new Date(f.date));
     const firstForecastDate = forecastDates[0];
     const lastForecastDate = forecastDates[forecastDates.length - 1];
-    
-    console.log('Forecast period:', firstForecastDate, 'to', lastForecastDate);
     
     // Find historical data for the same period ONE YEAR BEFORE the forecast period
     const lastYearStart = new Date(firstForecastDate);
@@ -189,14 +170,10 @@ function ForecastDetailPage() {
     const lastYearEnd = new Date(lastForecastDate);
     lastYearEnd.setFullYear(lastForecastDate.getFullYear() - 1);
     
-    console.log('Looking for last year data from:', lastYearStart, 'to', lastYearEnd);
-    
     const samePerioLastYear = historical.filter(h => {
       const date = new Date(h.date);
       return date >= lastYearStart && date <= lastYearEnd;
     });
-    
-    console.log('Found same period last year data:', samePerioLastYear.length, 'records');
     
     // Helper function to get value from different possible property names
     const getValue = (item) => {
@@ -206,11 +183,9 @@ function ForecastDetailPage() {
     // Calculate averages
     const forecastTotal = forecast.reduce((sum, f) => sum + getValue(f), 0);
     const forecastAvg = forecastTotal / forecast.length;
-    console.log('Forecast total:', forecastTotal, 'Average:', forecastAvg);
     
     const lastYearTotal = samePerioLastYear.reduce((sum, h) => sum + getValue(h), 0);
     const lastYearAvg = samePerioLastYear.length > 0 ? lastYearTotal / samePerioLastYear.length : 0;
-    console.log('Last year total:', lastYearTotal, 'Average:', lastYearAvg);
     
     const difference = forecastAvg - lastYearAvg;
     const percentChange = lastYearAvg > 0 ? ((difference / lastYearAvg) * 100) : 0;
@@ -243,7 +218,6 @@ function ForecastDetailPage() {
       hasLastYearData: samePerioLastYear.length > 0
     };
     
-    console.log('Comparison analysis result:', analysis);
     setComparisonAnalysis(analysis);
   };
 
@@ -546,12 +520,6 @@ function ForecastDetailPage() {
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1">Medicine ID</p>
                             <p className="text-lg font-bold text-gray-900">{medicine.id}</p>
-                          </div>
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <p className="text-sm text-gray-600 mb-1">Therapeutic Class</p>
-                            <p className="text-lg font-bold text-gray-900">
-                              {medicine.therapeuticClass || 'Not specified'}
-                            </p>
                           </div>
                           <div className="bg-gray-50 p-4 rounded-lg">
                             <p className="text-sm text-gray-600 mb-1">Stock Status</p>

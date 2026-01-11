@@ -104,8 +104,7 @@ class District(db.Model):
         return {
             "id": self.id,
             "name": self.name,
-            "areaCode": self.area_code,
-            "createdAt": self.created_at.isoformat() if self.created_at else None
+            "areaCode": self.area_code
         }
 
 
@@ -114,7 +113,6 @@ class Formula(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False, index=True)
-    therapeutic_class = db.Column(db.String(100), nullable=True)
     created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
     
     # Relationships
@@ -123,9 +121,7 @@ class Formula(db.Model):
     def to_dict(self):
         return {
             "id": self.id,
-            "name": self.name,
-            "therapeuticClass": self.therapeutic_class or "",
-            "createdAt": self.created_at.isoformat() if self.created_at else None
+            "name": self.name
         }
 
 

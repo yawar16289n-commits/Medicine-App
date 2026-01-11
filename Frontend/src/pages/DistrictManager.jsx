@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { districtsAPI } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 

@@ -129,8 +129,6 @@ def get_area_formula_forecast():
             DistrictMedicineLookup.formula_id == formula.id
         ).all()
         
-        print(f"DEBUG: Found {len(medicines)} medicines for {formula.name} in {district.name}")
-        
         if not medicines:
             return jsonify({
                 'error': f'No medicines found for formula "{formula.name}" in district "{district.name}"',
@@ -170,19 +168,12 @@ def get_area_formula_forecast():
                 MedicineSales.district_id == district.id
             ).group_by(MedicineSales.date).order_by(MedicineSales.date).all()
         
-        print(f"DEBUG: Found {len(historical_sales)} historical sales records")
-        print(f"DEBUG: Formula '{formula.name}' has {len(all_formula_medicine_ids)} total medicines in system")
-        print(f"DEBUG: District '{district.name}' + Formula lookup returned {len(lookup_medicine_ids)} medicines")
-        print(f"DEBUG: Using all {len(all_formula_medicine_ids)} formula medicines for historical sales")
-        
         # For forecast predictions, use medicines from lookup (what should be ordered for this district)
         medicine_ids = lookup_medicine_ids
         
         # Define forecast date range based on requested days
         forecast_start = datetime.now().date()
         forecast_end = forecast_start + timedelta(days=days)
-        
-        print(f"DEBUG: Requesting {days} days forecast: {forecast_start} to {forecast_end}")
         
         # First, try to get forecasts from MedicineForecast table
         existing_forecasts = db.session.query(
@@ -195,8 +186,6 @@ def get_area_formula_forecast():
             MedicineForecast.forecast_date < forecast_end
         ).group_by(MedicineForecast.forecast_date).order_by(MedicineForecast.forecast_date).all()
         
-        print(f"DEBUG: Found {len(existing_forecasts)} existing forecast records in database")
-        
         forecast_data = []
         
         if existing_forecasts:
@@ -207,10 +196,8 @@ def get_area_formula_forecast():
                     'predicted_quantity': int(forecast_row.total_quantity),
                     'source': 'database'
                 })
-            print(f"DEBUG: Using {len(forecast_data)} forecasts from MedicineForecast table")
         else:
             # No forecasts in database - try external Prophet API first
-            print(f"DEBUG: No forecasts in database, trying external Prophet API")
             
             external_api_url = 'http://127.0.0.1:5000'
             try:
@@ -218,7 +205,6 @@ def get_area_formula_forecast():
                 external_url = f"{external_api_url}/forecast"
                 params = {'area': area_name, 'formula': formula_name, 'days': days}
                 
-                print(f"DEBUG: Calling external API: {external_url} with params {params}")
                 response = requests.get(external_url, params=params, timeout=10)
                 
                 if response.status_code == 200:
@@ -229,8 +215,6 @@ def get_area_formula_forecast():
                     if 'forecast' in forecast_response:
                         forecast_dates = forecast_response['forecast'].get('dates', [])
                         forecast_values = forecast_response['forecast'].get('values', [])
-                        
-                        print(f"DEBUG: Received {len(forecast_dates)} forecast dates from external API")
                         
                         # Filter valid values and limit to requested days
                         valid_forecasts = [(d, v) for d, v in zip(forecast_dates, forecast_values) if v is not None][:days]
@@ -244,8 +228,6 @@ def get_area_formula_forecast():
                                     'predicted_quantity': predicted_qty,
                                     'source': 'prophet_api'
                                 })
-                            
-                            print(f"DEBUG: Built {len(forecast_data)} forecast records from Prophet API")
                             
                             # Save to database
                             per_medicine_qty = int(predicted_qty / len(medicine_ids)) if medicine_ids and predicted_qty > 0 else predicted_qty
@@ -270,28 +252,22 @@ def get_area_formula_forecast():
                             
                             try:
                                 db.session.commit()
-                                print(f"DEBUG: Saved Prophet forecasts to database")
                             except Exception as e:
                                 db.session.rollback()
-                                print(f"WARNING: Failed to save Prophet forecasts: {e}")
                         else:
-                            print(f"DEBUG: No valid values from Prophet API, falling back to calculation")
+                            pass  # No valid values from Prophet API, falling back to calculation
                 else:
-                    print(f"DEBUG: External API returned status {response.status_code}, falling back to calculation")
+                    pass  # External API returned non-200 status, falling back to calculation
                     
             except Exception as e:
-                print(f"WARNING: Failed to fetch from external Prophet API: {e}")
-                print(f"DEBUG: Falling back to calculation from historical data")
+                pass  # Failed to fetch from external Prophet API, falling back to calculation
             
             # If still no forecast data, calculate from historical data
             if not forecast_data:
-                print(f"DEBUG: Calculating forecast from historical data")
                 if historical_sales:
                     # Convert all Decimal values to float for calculations
                     quantities = [float(s.total_quantity) for s in historical_sales]
                     avg_daily = sum(quantities) / len(quantities)
-                    
-                    print(f"DEBUG: Historical average daily: {avg_daily:.2f}")
                     
                     # Apply simple trend detection
                     if len(quantities) >= 7:
@@ -299,8 +275,6 @@ def get_area_formula_forecast():
                         trend_factor = recent_avg / avg_daily if avg_daily > 0 else 1.0
                     else:
                         trend_factor = 1.0
-                    
-                    print(f"DEBUG: Trend factor: {trend_factor:.2f}")
                     
                     # Calculate per-medicine forecast (divide by number of medicines)
                     per_medicine_qty = int(max(0, avg_daily * trend_factor / len(medicine_ids))) if medicine_ids else 0
@@ -335,15 +309,10 @@ def get_area_formula_forecast():
                     
                     try:
                         db.session.commit()
-                        print(f"DEBUG: Saved {len(forecast_data) * len(medicine_ids)} calculated forecasts to database")
                     except Exception as e:
                         db.session.rollback()
-                        print(f"WARNING: Failed to save calculated forecasts: {e}")
-                    
-                    print(f"DEBUG: Generated {len(forecast_data)} calculated forecast records")
                 else:
                     # No historical data and no API data
-                    print(f"INFO: No historical data for {formula.name} in {district.name}")
                     return jsonify({
                         'error': 'No historical sales data available',
                         'hint': 'Add sales records for this area and formula to enable forecasting',
@@ -525,7 +494,6 @@ def get_city_forecast():
                     total_forecast_by_week[week]['count'] += 1
                     
             except Exception as e:
-                print(f"Warning: Could not generate forecast for {medicine_name}: {e}")
                 continue
         
         if medicines_count == 0:
@@ -600,7 +568,6 @@ def get_district_forecast(district_name):
                 })
                     
             except Exception as e:
-                print(f"Warning: Could not generate forecast for {medicine_name}: {e}")
                 continue
         
         if medicines_count == 0:

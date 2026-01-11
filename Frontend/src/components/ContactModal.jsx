@@ -13,7 +13,6 @@ export default function ContactModal({ isOpen, onClose }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // Here you would typically send the data to your backend
-    console.log('Contact form submitted:', formData);
     setSubmitted(true);
     setTimeout(() => {
       setSubmitted(false);

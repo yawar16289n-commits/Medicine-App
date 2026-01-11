@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { formulasAPI, districtsAPI, medicinesAPI } from "../utils/api";
 
 function MedicineForm({ onAdd, onUpdate, editing, currentMedicine }) {

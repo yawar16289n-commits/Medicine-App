@@ -31,8 +31,7 @@ def create_formula():
     Create a new formula
     Expected JSON:
     {
-        "name": "Paracetamol",
-        "therapeuticClass": "Analgesic" (optional)
+        "name": "Paracetamol"
     }
     """
     data = request.get_json()
@@ -47,8 +46,7 @@ def create_formula():
         return jsonify({"error": f"Formula '{data.get('name')}' already exists"}), 409
     
     formula = Formula(
-        name=data.get('name'),
-        therapeutic_class=data.get('therapeuticClass') or None
+        name=data.get('name')
     )
     db.session.add(formula)
     db.session.commit()
@@ -71,9 +69,6 @@ def update_formula(id):
         if existing:
             return jsonify({"error": f"Formula '{data['name']}' already exists"}), 409
         formula.name = data['name']
-    
-    if 'therapeuticClass' in data:
-        formula.therapeutic_class = data['therapeuticClass'] or None
     
     db.session.commit()
     

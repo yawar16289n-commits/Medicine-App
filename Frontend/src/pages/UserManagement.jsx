@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import UserTable from "../components/UserTable";
 import { usersAPI, authAPI } from "../utils/api";
 

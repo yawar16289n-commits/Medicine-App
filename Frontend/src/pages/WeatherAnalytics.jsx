@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Papa from "papaparse";
 import { weatherAPI } from "../utils/api";
 import WeatherUpload from "../components/WeatherUpload";
@@ -110,7 +110,9 @@ export default function WeatherAnalytics() {
     // For historical views, show only historical data
     const latestDate = weatherData[weatherData.length - 1].date;
     const cutoffDate = new Date(latestDate);
-    cutoffDate.setDate(cutoffDate.getDate() - TIME_RANGES[selectedRange].days);
+    const rangeConfig = TIME_RANGES[selectedRange];
+    if (!rangeConfig) return weatherData.filter(d => !d.isForecast);
+    cutoffDate.setDate(cutoffDate.getDate() - rangeConfig.days);
     
     return weatherData.filter(d => d.date >= cutoffDate && !d.isForecast);
   }, [weatherData, selectedRange, customStartDate, customEndDate]);
@@ -636,7 +638,7 @@ export default function WeatherAnalytics() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-6 py-3">
-            <h6 className="text-lg font-semibold">Temperature Summary ({TIME_RANGES[selectedRange].label})</h6>
+            <h6 className="text-lg font-semibold">Temperature Summary ({TIME_RANGES[selectedRange]?.label || selectedRange})</h6>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-3 gap-4 text-center">
@@ -663,7 +665,7 @@ export default function WeatherAnalytics() {
         </div>
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white px-6 py-3">
-            <h6 className="text-lg font-semibold">Humidity Summary ({TIME_RANGES[selectedRange].label})</h6>
+            <h6 className="text-lg font-semibold">Humidity Summary ({TIME_RANGES[selectedRange]?.label || selectedRange})</h6>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-3 gap-4 text-center">

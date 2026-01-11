@@ -1,12 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { formulasAPI } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function FormulaManager() {
   const [formulas, setFormulas] = useState([]);
   const [formData, setFormData] = useState({
-    name: "",
-    therapeuticClass: "",
+    name: ""
   });
   const [editing, setEditing] = useState(false);
   const [currentId, setCurrentId] = useState(null);
@@ -43,7 +42,7 @@ export default function FormulaManager() {
         await formulasAPI.create(formData);
         alert("Formula created successfully!");
       }
-      setFormData({ name: "", therapeuticClass: "" });
+      setFormData({ name: "" });
       setEditing(false);
       setCurrentId(null);
       fetchFormulas();
@@ -56,8 +55,7 @@ export default function FormulaManager() {
 
   const handleEdit = (formula) => {
     setFormData({
-      name: formula.name,
-      therapeuticClass: formula.therapeuticClass || "",
+      name: formula.name
     });
     setEditing(true);
     setCurrentId(formula.id);
@@ -75,7 +73,7 @@ export default function FormulaManager() {
   };
 
   const handleCancel = () => {
-    setFormData({ name: "", therapeuticClass: "" });
+    setFormData({ name: "" });
     setEditing(false);
     setCurrentId(null);
   };
@@ -89,7 +87,7 @@ export default function FormulaManager() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">Formula Management</h1>
-          <p className="text-gray-600">Manage medicine formulas and therapeutic classifications</p>
+          <p className="text-gray-600">Manage medicine formulas</p>
         </div>
 
         {/* Form */}
@@ -108,13 +106,6 @@ export default function FormulaManager() {
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
-                />
-                <input
-                  type="text"
-                  placeholder="Therapeutic Class (optional, e.g., Analgesic, Antibiotic)"
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  value={formData.therapeuticClass}
-                  onChange={(e) => setFormData({ ...formData, therapeuticClass: e.target.value })}
                 />
               </div>
               <div className="flex gap-2">
@@ -175,14 +166,6 @@ export default function FormulaManager() {
                       </div>
                     )}
                   </div>
-                  {formula.therapeuticClass && (
-                    <p className="text-sm text-primary-600 font-medium mb-1">
-                       {formula.therapeuticClass}
-                    </p>
-                  )}
-                  <p className="text-gray-500 text-xs">
-                    Created: {new Date(formula.createdAt).toLocaleDateString()}
-                  </p>
                 </div>
               ))}
             </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { activitiesAPI } from "../utils/api";
 
 export default function ActivitiesPage() {

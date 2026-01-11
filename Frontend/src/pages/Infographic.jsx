@@ -553,7 +553,7 @@ export default function Infographic() {
                       ['View Forecasts', true, true, false],
                       ['Generate Predictions', true, true, false],
                       ['Manage Medicines', true, false, true],
-                      ['Upload Data', true, true, true],
+                      ['Upload Data', true, false, true],
                       ['View Weather Data', true, true, false],
                       ['System Settings', true, false, false],
                       ['Activity Logs', true, false, false]
