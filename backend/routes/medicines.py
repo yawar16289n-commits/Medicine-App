@@ -1,13 +1,63 @@
 """Medicine management routes - CRUD operations and file upload"""
 from flask import Blueprint, request, jsonify, g
 from database import db
-from models import Medicine, Formula, District, MedicineSales, MedicineForecast
+from models import Medicine, Formula, District, MedicineSales, MedicineForecast, DistrictMedicineLookup
 from datetime import date
 import pandas as pd
 from utils.activity_logger import log_activity
 from middleware.auth import require_auth
 
 medicines_bp = Blueprint('medicines', __name__)
+
+
+# Helper functions for district_medicine_lookup management
+def ensure_district_medicine_lookup(district_id, medicine_id, formula_id):
+    """
+    Ensure a district-medicine-formula combination exists in the lookup table.
+    If it doesn't exist, create it. If it exists, do nothing.
+    """
+    existing = DistrictMedicineLookup.query.filter_by(
+        district_id=district_id,
+        medicine_id=medicine_id,
+        formula_id=formula_id
+    ).first()
+    
+    if not existing:
+        lookup_entry = DistrictMedicineLookup(
+            district_id=district_id,
+            medicine_id=medicine_id,
+            formula_id=formula_id
+        )
+        db.session.add(lookup_entry)
+        return True
+    return False
+
+
+def cleanup_district_medicine_lookup(district_id, medicine_id, formula_id):
+    """
+    Check if the district-medicine-formula combination still has any sales records.
+    If no sales records exist, remove it from the lookup table.
+    Returns True if deleted, False otherwise.
+    """
+    # Check if there are any other sales records with this combination
+    other_sales = MedicineSales.query.filter_by(
+        district_id=district_id,
+        medicine_id=medicine_id
+    ).first()
+    
+    if not other_sales:
+        # No other sales records exist, safe to delete from lookup
+        lookup_entry = DistrictMedicineLookup.query.filter_by(
+            district_id=district_id,
+            medicine_id=medicine_id,
+            formula_id=formula_id
+        ).first()
+        
+        if lookup_entry:
+            db.session.delete(lookup_entry)
+            return True
+    
+    return False
 
 
 @medicines_bp.route('/medicines', methods=['POST'])
@@ -480,6 +530,9 @@ def create_sales_record(**kwargs):
         medicine.stock_level -= sale_quantity
         message = "Sales record created successfully"
     
+    # Ensure district-medicine-formula lookup entry exists
+    ensure_district_medicine_lookup(district.id, medicine.id, medicine.formula_id)
+    
     db.session.commit()
     
     # Log activity
@@ -511,6 +564,67 @@ def create_sales_record(**kwargs):
             "quantity": sales_record.quantity
         }
     }), 201
+
+
+@medicines_bp.route('/medicines/sales/<int:id>', methods=['DELETE'])
+@require_auth
+def delete_sales_record(id, **kwargs):
+    """
+    Delete a sales record by ID
+    Also cleans up district_medicine_lookup if no other sales exist for that combination
+    """
+    g.current_user = kwargs.get('current_user')
+    
+    # Find the sales record
+    sales_record = MedicineSales.query.get(id)
+    if not sales_record:
+        return jsonify({"error": "Sales record not found"}), 404
+    
+    # Get related objects before deletion
+    medicine = sales_record.medicine
+    district = sales_record.district
+    district_id = sales_record.district_id
+    medicine_id = sales_record.medicine_id
+    formula_id = medicine.formula_id if medicine else None
+    quantity = sales_record.quantity
+    
+    # Restore stock to medicine
+    if medicine:
+        medicine.stock_level += quantity
+    
+    # Store details for activity log
+    sale_details = {
+        'medicine': medicine.brand_name if medicine else 'Unknown',
+        'district': district.name if district else 'Unknown',
+        'date': sales_record.date.isoformat(),
+        'quantity': quantity
+    }
+    
+    # Delete the sales record
+    db.session.delete(sales_record)
+    
+    # Clean up district_medicine_lookup if no other sales exist
+    if formula_id:
+        cleanup_district_medicine_lookup(district_id, medicine_id, formula_id)
+    
+    db.session.commit()
+    
+    # Log activity
+    user = getattr(g, 'current_user', None)
+    if user:
+        log_activity(
+            user_id=user.id,
+            user_name=user.username,
+            action_type='delete',
+            entity_type='sales_record',
+            entity_id=id,
+            details=sale_details
+        )
+    
+    return jsonify({
+        "message": "Sales record deleted successfully",
+        "restoredStock": quantity
+    }), 200
 
 
 @medicines_bp.route('/medicines/sales/template', methods=['GET'])
@@ -697,6 +811,9 @@ def upload_sales_data(**kwargs):
                     )
                     db.session.add(sales_record)
                     medicine.stock_level -= sale_quantity
+                
+                # Ensure district-medicine-formula lookup entry exists
+                ensure_district_medicine_lookup(district.id, medicine.id, medicine.formula_id)
                 
                 records_processed += 1
                 

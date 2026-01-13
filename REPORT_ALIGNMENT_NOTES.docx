@@ -1,0 +1,138 @@
+# Report Alignment Notes (Current Codebase)
+
+## High-impact mismatches and exact replacements
+
+### 1) Forecasting Models (Neural Prophet / RF / XGBoost / LSTM)
+
+**Where it appears in report**
+- Abstract/Architecture text (around the line that mentions: *“Neural Prophet, Random Forest, XGBoost, and LSTM”*)
+- Conclusion text (around the line that mentions: *“like Neural Prophet”*)
+
+**Replace with (pasteable)**
+> The forecasting engine is implemented using a Neural Prophet-based time-series approach. 
+
+
+### 3) Outbreak prediction / anomaly modeling
+
+**Where it appears**
+- Objectives and literature analysis bullets mentioning *disease outbreaks*, *outbreak detection*, or *anomaly modeling*.
+
+**Replace with (pasteable)**
+> The system focuses on predicting demand trends in medicine sales and presenting demand changes through forecast graphs and dashboards.
+
+---
+
+### 4) Recommendation system (alternative medicines / optimized ordering)
+
+**Where it appears**
+- Literature analysis bullet: “Recommendation System for alternative medicines”
+- Methodology/Functional requirements: “Recommendation Engine” that calculates optimal order quantities
+
+**Replace with (pasteable)**
+> The system supports inventory decision-making by comparing current stock levels against forecasted demand (e.g., next 14 days) to identify low-stock and out-of-stock medicines on the dashboard and invemtory pages.
+
+---
+
+### 5) Alerts/notifications (auto alert, SMS/email/in-app notifications)
+
+**Where it appears**
+- UX objectives: “Alerts and Notifications”
+
+**Replace with (pasteable)**
+> Low-stock and out-of-stock status is shown on the dashboard using computed indicators.
+
+
+---
+
+### 6) IoT barcode scanners / counterfeit drug validation
+
+**Where it appears**
+- Literature analysis bullet about IoT barcode scanners and text about counterfeit drugs.
+
+
+**Replace with (pasteable)**
+> Bulk data ingestion is supported through CSV/Excel uploads for medicines sales, stock adjustments, and weather data.
+
+---
+
+### 7) Security/compliance over-claims (GDPR/HIPAA compliance, MFA, encryption-at-rest, consent)
+
+**Where it appears**
+- Security/privacy section that claims GDPR/HIPAA compliance and features like MFA, encryption, and consent protocols.
+
+**Replace with (pasteable)**
+> The system implements JWT-based authentication, secure password hashing, and role-based access control for protected operations. 
+
+---
+
+## Functional Requirements (Aligned to Current Code)
+
+Use this section to update Chapter 3 (Methodology) so the Functional Requirements reflect what is actually implemented.
+
+### Where to edit in the report (recommended locations)
+
+- **Chapter 3 → Methodology → Functional Requirements**
+
+### Replace/Update each Functional Requirement
+
+1) **User Authentication and Role Management**
+- **Report location to edit**: Chapter 3 → Functional Requirements → “User Authentication and Role Management”.
+- **Replace with (pasteable)**
+	> > The system provides secure login with role-based access for three roles: Admin, Analyst, and Data Operator. Admin users manage users and system configuration, Analysts access forecasting and analytics tools, and Data Operators focus on sales and inventory operations.
+
+5) **Interactive Visualization and Dashboard**
+- **Report location to edit**: Chapter 3 → Functional Requirements → “Interactive Visualization and Dashboard”.
+- **Replace with (pasteable)**
+	> The system shall provide an interactive dashboard and analytics pages that show various inventory metrics of medicines, forecast graphs past and projected sales across areas, and weather trends across selectable time ranges.
+
+6) **Recommendation System**
+- **Report location to edit**: Chapter 3 → Functional Requirements → “Recommendation System”.
+- **Replace with (pasteable)**
+	> The system shall support inventory decision-making by comparing existing stock levels against forecasted demand to identify low-stock and out-of-stock medicines on the dashboard and inventory pages. 
+
+7) **Reporting**
+- **Report location to edit**: Chapter 3 → Functional Requirements → “Reporting”.
+- **Replace with (pasteable)**
+	> The system will provides operational reporting through dashboards and activity logs that record create/update/delete/upload actions by users. 
+
+---
+
+## Use Cases (Aligned to Current Code)
+
+Use this section to update the “Testing / Use Cases” list so it matches the implemented features.
+
+### Where to edit in the report (recommended locations)
+
+- **Chapter 5 → Testing → Use Cases list** (the section that lists UC‑01, UC‑02, etc.).
+
+### Replace/Update Use Cases
+
+**UC-04: Generate Medicine Sales Forecast (Weather + Area Based)**
+- **Issue**: forecast is area+formula based, but not weather-integrated.
+- **Replace with**
+	> UC-04: Generate Medicine Sales Forecast (Area + Formula Based)
+
+**UC-05 (duplicate in report): Select Forecast Time Range (Weekly/Monthly/Custom)**
+- Your list shows UC-05 twice.
+- **Replace with**
+	> UC-06: Select Forecast Time Range (Days/Periods)
+
+**UC-08: Auto Comparison of Forecast vs Actual Sales**
+- **Adjust wording** (comparison exists visually / YoY style comparisons; not a full metrics pipeline).
+- **Replace with**
+	> UC-08: View Historical vs Forecast Comparison (Graph View)
+
+**UC-09: Compare Seasonal Demand (Winter/Summer Analysis)**
+- Not implemented as a dedicated seasonal comparison feature.
+- **Replace with**
+	> UC-09: View Demand Trends Over Time via Forecast Charts
+
+**UC-11: Receive Low Stock Notifications (Auto Alert)**
+- Not implemented as notifications.
+- **Replace with**
+	> UC-11: View Low Stock Medicines as Inventory Metric
+
+**UC-12: Generate Final Forecast Summary Report**
+- Not implemented as a generated/exported report.
+- **Replace with**
+	> UC-12: Review Forecast Summary On-Screen in Forecast Page

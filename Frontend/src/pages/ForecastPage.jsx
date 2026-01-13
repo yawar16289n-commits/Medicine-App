@@ -141,23 +141,30 @@ function ForecastPage() {
       
       // Get formulas for this area
       const formulasRes = await forecastAPI.getAvailableFormulas(areaName);
-      const areaFormulas = (formulasRes.data.formulas || []).map(name => ({ name }));
+      console.log('Formulas API response:', formulasRes.data);
+      const formulaNames = formulasRes.data.formulas || [];
+      console.log('Formula names:', formulaNames);
       
       // Store formula names without forecast data
-      const formulaForecasts = areaFormulas.map(formula => ({
-        formula: formula.name,
+      const formulaForecasts = formulaNames.map(formulaName => ({
+        formula: formulaName,
         totalForecast: null, // Will be loaded when formula is expanded
         forecastData: null,
         comparison: null,
         loading: false
       }));
+      console.log('Formula forecasts:', formulaForecasts);
       
       // Update area with formulas
-      setAreaForecasts(prev => prev.map(areaData => 
-        areaData.area === areaName 
-          ? { ...areaData, formulas: formulaForecasts, loading: false }
-          : areaData
-      ));
+      setAreaForecasts(prev => {
+        const updated = prev.map(areaData => 
+          areaData.area === areaName 
+            ? { ...areaData, formulas: formulaForecasts, loading: false }
+            : areaData
+        );
+        console.log('Updated areaForecasts:', updated);
+        return updated;
+      });
     } catch (err) {
       console.error(`Failed to fetch formulas for area ${areaName}:`, err);
       setAreaForecasts(prev => prev.map(areaData => 
@@ -171,7 +178,7 @@ function ForecastPage() {
     try {
       // Update loading state for this specific formula
       setAreaForecasts(prev => prev.map(areaData => {
-        if (areaData.area === areaName) {
+        if (areaData.area === areaName && areaData.formulas) {
           return {
             ...areaData,
             formulas: areaData.formulas.map(f => 
@@ -196,7 +203,7 @@ function ForecastPage() {
       
       // Update the specific formula with fetched data
       setAreaForecasts(prev => prev.map(areaData => {
-        if (areaData.area === areaName) {
+        if (areaData.area === areaName && areaData.formulas) {
           return {
             ...areaData,
             formulas: areaData.formulas.map(f => 
@@ -490,7 +497,7 @@ function ForecastPage() {
                 <div key={idx} className="bg-white rounded-xl shadow-md overflow-hidden">
                   {/* Area Header */}
                   <div
-                    onClick={() => toggleItem(`area-${idx}`)}
+                    onClick={() => toggleItem(`area-${idx}`, areaData.area)}
                     className="bg-gradient-to-r from-blue-100 to-cyan-100 px-6 py-4 flex justify-between items-center cursor-pointer hover:from-blue-200 hover:to-cyan-200 transition-all"
                   >
                     <div className="flex items-center gap-3">
@@ -498,7 +505,7 @@ function ForecastPage() {
                       <h5 className="text-xl font-bold text-gray-900">{areaData.area}</h5>
                       {areaData.loading ? (
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-500"></div>
-                      ) : areaData.formulas ? (
+                      ) : areaData.formulas && Array.isArray(areaData.formulas) ? (
                         <span className="text-sm text-gray-600">({areaData.formulas.length} formulas)</span>
                       ) : (
                         <span className="text-sm text-gray-500">(Click to load)</span>
@@ -512,7 +519,7 @@ function ForecastPage() {
                   {/* Formulas Dropdown */}
                   {expandedItems[`area-${idx}`] && (
                     <div className="p-6 bg-gray-50">
-                      {areaData.formulas.length > 0 ? (
+                      {areaData.formulas && areaData.formulas.length > 0 ? (
                         <div className="space-y-3">
                           {areaData.formulas.map((formulaData, fIdx) => {
                             const itemKey = `area-${idx}-formula-${fIdx}`;
@@ -614,7 +621,9 @@ function ForecastPage() {
                     <div className="flex items-center gap-3">
                       <span className={`text-gray-600 transition-transform ${expandedItems[`formula-${idx}`] ? "rotate-90" : ""}`}>▶</span>
                       <h5 className="text-xl font-bold text-gray-900">{formulaData.formula}</h5>
-                      <span className="text-sm text-gray-600">({formulaData.areas.length} areas)</span>
+                      {formulaData.areas && Array.isArray(formulaData.areas) && (
+                        <span className="text-sm text-gray-600">({formulaData.areas.length} areas)</span>
+                      )}
                     </div>
                     <div className="flex items-center gap-4">
                       <div className="text-right">
@@ -644,7 +653,7 @@ function ForecastPage() {
                   {/* Areas Dropdown */}
                   {expandedItems[`formula-${idx}`] && (
                     <div className="p-6 bg-gray-50">
-                      {formulaData.areas.length > 0 ? (
+                      {formulaData.areas && formulaData.areas.length > 0 ? (
                         <div className="space-y-3">
                           {formulaData.areas.map((areaData, aIdx) => (
                             <div
