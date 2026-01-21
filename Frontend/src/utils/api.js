@@ -142,3 +142,29 @@ export const activitiesAPI = {
   getRecent: () => api.get('/api/activities/recent'),
   getById: (id) => api.get(`/api/activities/${id}`),
 };
+
+// Reports API - requires admin or analyst role
+export const reportsAPI = {
+  // Get available years for report generation
+  getAvailableYears: () => api.get('/api/reports/available-years'),
+  
+  // Get formulas/areas lists for dropdowns
+  getFormulas: () => api.get('/api/reports/formulas-list'),
+  getAreas: () => api.get('/api/reports/areas-list'),
+  
+  // Generate comprehensive report (all data)
+  generateComprehensive: (year) => 
+    api.get('/api/reports/comprehensive', { params: { year }, responseType: 'blob' }),
+  
+  // Generate formula-specific reports
+  generateFormulaSummary: (year) => 
+    api.get('/api/reports/formula-summary', { params: { year }, responseType: 'blob' }),
+  generateFormulaReport: (formulaId, year) => 
+    api.get(`/api/reports/formula/${formulaId}`, { params: { year }, responseType: 'blob' }),
+  
+  // Generate area-specific reports
+  generateAreaSummary: (year) => 
+    api.get('/api/reports/area-summary', { params: { year }, responseType: 'blob' }),
+  generateAreaReport: (areaId, year) => 
+    api.get(`/api/reports/area/${areaId}`, { params: { year }, responseType: 'blob' }),
+};

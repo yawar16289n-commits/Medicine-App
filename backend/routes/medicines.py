@@ -133,7 +133,7 @@ def create_medicine(**kwargs):
 def get_medicines():
     """
     Get all medicines grouped by formula name.
-    Includes 14-day forecast.
+    Includes 14-day forecast and low stock status.
     
     Returns:
         {
@@ -145,7 +145,8 @@ def get_medicines():
                     "brandName": "Brand X",
                     "dosageStrength": "500mg",
                     "createdAt": "2024-01-01T00:00:00",
-                    "forecast14Days": 150
+                    "forecast14Days": 150,
+                    "isFormulaLowStock": true/false
                 }
             ]
         }
@@ -180,7 +181,10 @@ def get_medicines():
         
         med_dict = med.to_dict()
         # Add individual medicine forecast
-        med_dict['forecast14Days'] = forecast_map.get(med.id, 0)
+        forecast_14_days = forecast_map.get(med.id, 0) or 0
+        med_dict['forecast14Days'] = forecast_14_days
+        # Add low stock indicator: stock level is less than 14-day forecast
+        med_dict['isFormulaLowStock'] = med.stock_level < forecast_14_days if forecast_14_days > 0 else False
         
         grouped[formula_name].append(med_dict)
 

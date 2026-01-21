@@ -385,67 +385,90 @@ function ForecastDetailPage() {
         </div>
 
         {/* Forecast Tab Content */}
-        {activeTab === "forecast" && forecastData && (
+        {activeTab === "forecast" && (
           <>
-            {/* Forecast Chart */}
-            <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 p-6">
-              <h5 className="text-lg font-bold text-gray-900 mb-4">📈 Forecast Chart</h5>
-              <ForecastChart
-                historicalData={chartData.historical}
-                forecastData={chartData.forecast}
-                title={`${districtData?.name} - ${formulaName} Forecast`}
-              />
-            </div>
-
-            {/* Simplified Comparison Analysis Card */}
-            {comparisonAnalysis && comparisonAnalysis.hasLastYearData && (
-              <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
-                <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4">
-                  <h5 className="text-xl font-bold flex items-center gap-2">
-                    📊 Forecast vs Historical Comparison
-                  </h5>
+            {forecastData && forecastData.forecast && forecastData.forecast.length > 0 ? (
+              <>
+                {/* Forecast Chart */}
+                <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6 p-6">
+                  <h5 className="text-lg font-bold text-gray-900 mb-4">📈 Forecast Chart</h5>
+                  <ForecastChart
+                    historicalData={chartData.historical}
+                    forecastData={chartData.forecast}
+                    title={`${districtData?.name} - ${formulaName} Forecast`}
+                  />
                 </div>
-                <div className="p-6">
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* Last Year Sales */}
-                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-200 text-center">
-                      <p className="text-sm text-blue-700 font-semibold mb-2 uppercase tracking-wide">Last Year Same Period</p>
-                      <p className="text-4xl font-bold text-blue-900 mb-2">{comparisonAnalysis.lastYearAvg}</p>
-                      <p className="text-xs text-blue-600">units/day average</p>
-                      <p className="text-xs text-blue-500 mt-1">{comparisonAnalysis.lastYearPeriod}</p>
-                    </div>
 
-                    {/* Current Forecast */}
-                    <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200 text-center">
-                      <p className="text-sm text-green-700 font-semibold mb-2 uppercase tracking-wide">Current Forecast</p>
-                      <p className="text-4xl font-bold text-green-900 mb-2">{comparisonAnalysis.forecastAvg}</p>
-                      <p className="text-xs text-green-600">units/day average</p>
-                      <p className="text-xs text-green-500 mt-1">{comparisonAnalysis.forecastPeriod}</p>
+                {/* Simplified Comparison Analysis Card */}
+                {comparisonAnalysis && comparisonAnalysis.hasLastYearData && (
+                  <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-6 py-4">
+                      <h5 className="text-xl font-bold flex items-center gap-2">
+                        📊 Forecast vs Historical Comparison
+                      </h5>
                     </div>
+                    <div className="p-6">
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {/* Last Year Sales */}
+                        <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border-2 border-blue-200 text-center">
+                          <p className="text-sm text-blue-700 font-semibold mb-2 uppercase tracking-wide">Last Year Same Period</p>
+                          <p className="text-4xl font-bold text-blue-900 mb-2">{comparisonAnalysis.lastYearAvg}</p>
+                          <p className="text-xs text-blue-600">units/day average</p>
+                          <p className="text-xs text-blue-500 mt-1">{comparisonAnalysis.lastYearPeriod}</p>
+                        </div>
 
-                    {/* Percentage Change */}
-                    <div className={`bg-gradient-to-br p-6 rounded-xl border-2 text-center ${
-                      comparisonAnalysis.isHigher 
-                        ? 'from-amber-50 to-amber-100 border-amber-200' 
-                        : 'from-red-50 to-red-100 border-red-200'
-                    }`}>
-                      <p className={`text-sm font-semibold mb-2 uppercase tracking-wide ${
-                        comparisonAnalysis.isHigher ? 'text-amber-700' : 'text-red-700'
-                      }`}>
-                        Change vs Last Year
-                      </p>
-                      <p className={`text-4xl font-bold mb-2 ${
-                        comparisonAnalysis.isHigher ? 'text-amber-900' : 'text-red-900'
-                      }`}>
-                        {comparisonAnalysis.isHigher ? '+' : ''}{comparisonAnalysis.percentChange}%
-                      </p>
-                      <p className={`text-sm font-medium ${
-                        comparisonAnalysis.isHigher ? 'text-amber-700' : 'text-red-700'
-                      }`}>
-                        {comparisonAnalysis.isHigher ? '↗ Higher Demand' : '↘ Lower Demand'}
-                      </p>
+                        {/* Current Forecast */}
+                        <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border-2 border-green-200 text-center">
+                          <p className="text-sm text-green-700 font-semibold mb-2 uppercase tracking-wide">Current Forecast</p>
+                          <p className="text-4xl font-bold text-green-900 mb-2">{comparisonAnalysis.forecastAvg}</p>
+                          <p className="text-xs text-green-600">units/day average</p>
+                          <p className="text-xs text-green-500 mt-1">{comparisonAnalysis.forecastPeriod}</p>
+                        </div>
+
+                        {/* Percentage Change */}
+                        <div className={`bg-gradient-to-br p-6 rounded-xl border-2 text-center ${
+                          comparisonAnalysis.isHigher 
+                            ? 'from-amber-50 to-amber-100 border-amber-200' 
+                            : 'from-red-50 to-red-100 border-red-200'
+                        }`}>
+                          <p className={`text-sm font-semibold mb-2 uppercase tracking-wide ${
+                            comparisonAnalysis.isHigher ? 'text-amber-700' : 'text-red-700'
+                          }`}>
+                            Change vs Last Year
+                          </p>
+                          <p className={`text-4xl font-bold mb-2 ${
+                            comparisonAnalysis.isHigher ? 'text-amber-900' : 'text-red-900'
+                          }`}>
+                            {comparisonAnalysis.isHigher ? '+' : ''}{comparisonAnalysis.percentChange}%
+                          </p>
+                          <p className={`text-sm font-medium ${
+                            comparisonAnalysis.isHigher ? 'text-amber-700' : 'text-red-700'
+                          }`}>
+                            {comparisonAnalysis.isHigher ? '↗ Higher Demand' : '↘ Lower Demand'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
                   </div>
+            )}
+              </>
+            ) : (
+              /* Forecast Not Available Message */
+              <div className="bg-white rounded-xl shadow-md overflow-hidden mb-6">
+                <div className="bg-gradient-to-r from-gray-400 to-gray-500 text-white px-6 py-4">
+                  <h5 className="text-xl font-bold flex items-center gap-2">
+                    📈 Forecast Data
+                  </h5>
+                </div>
+                <div className="p-8 text-center">
+                  <div className="text-6xl mb-4">📊</div>
+                  <h3 className="text-2xl font-bold text-gray-700 mb-2">Forecast Not Available</h3>
+                  <p className="text-gray-500 text-lg">
+                    No forecast data is currently available for {formulaName} in {districtData?.name || districtName}.
+                  </p>
+                  <p className="text-gray-400 text-sm mt-2">
+                    Forecast data may not have been generated for this area and formula combination yet.
+                  </p>
                 </div>
               </div>
             )}
@@ -491,19 +514,25 @@ function ForecastDetailPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-6">
-                        {forecastData && (
+                        {/* Use forecast from API if available */}
+                        {medicine.forecast14Days !== undefined && medicine.forecast14Days > 0 ? (
                           <div className="text-right">
-                            <p className="text-sm text-gray-600">Forecast ({forecastRange} days)</p>
+                            <p className="text-sm text-gray-600">Forecast (14 days)</p>
                             <p className="text-2xl font-bold text-green-600">
-                              {Math.round((forecastData.summary?.total_forecast || 0) / medicines.length).toLocaleString()}
+                              {Math.round(medicine.forecast14Days).toLocaleString()}
                             </p>
+                          </div>
+                        ) : (
+                          <div className="text-right">
+                            <p className="text-sm text-gray-600">Forecast</p>
+                            <p className="text-lg font-bold text-gray-400">Not Available</p>
                           </div>
                         )}
                         <div className="text-right">
                           <p className="text-sm text-gray-600">Stock Level</p>
                           <p className={`text-2xl font-bold ${
                             medicine.stockLevel === 0 ? 'text-red-600' :
-                            medicine.stockLevel <= 100 ? 'text-amber-600' :
+                            medicine.isFormulaLowStock ? 'text-amber-600' :
                             'text-green-600'
                           }`}>
                             {medicine.stockLevel || 0}
@@ -525,11 +554,11 @@ function ForecastDetailPage() {
                             <p className="text-sm text-gray-600 mb-1">Stock Status</p>
                             <p className={`text-lg font-bold ${
                               medicine.stockLevel === 0 ? 'text-red-600' :
-                              medicine.stockLevel <= 100 ? 'text-amber-600' :
+                              medicine.isFormulaLowStock ? 'text-amber-600' :
                               'text-green-600'
                             }`}>
                               {medicine.stockLevel === 0 ? 'Out of Stock' :
-                               medicine.stockLevel <= 100 ? 'Low Stock' :
+                               medicine.isFormulaLowStock ? 'Low Stock' :
                                'In Stock'}
                             </p>
                           </div>

@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ContactModal from '../components/ContactModal';
+import sabeehImg from '../assets/sabeeh.jpeg';
+import yawarImg from '../assets/yawar.jpeg';
+import waliImg from '../assets/wali.jpeg';
+import faseehImg from '../assets/faseeh.jpeg';
+import zahabImg from '../assets/zaahb.jpeg';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -68,33 +73,38 @@ export default function Home() {
 
   const teamMembers = [
     {
-      name: 'Dr. Instructor Name',
+      name: 'Professor Sabeeh Ahmed',
       role: 'Project Supervisor',
-      image: '👨‍🏫',
+      image: sabeehImg,
+      isEmoji: false,
       description: 'Guiding the development of intelligent healthcare solutions'
     },
     {
-      name: 'Team Member 1',
+      name: 'Muhammad Yawar',
       role: 'Full Stack Developer',
-      image: '👨‍💻',
-      description: 'Backend & ML Engineering'
+      image: yawarImg,
+      isEmoji: false,
+      description: 'Backend & Frontend Development '
     },
     {
-      name: 'Team Member 2',
-      role: 'Frontend Developer',
-      image: '👩‍💻',
-      description: 'UI/UX & React Development'
+      name: 'Wali Muhammad',
+      role: 'Documentation & Data Analyst',
+      image: waliImg,
+      isEmoji: false,
+      description: 'Thesis Documentation & Data Processing'
     },
     {
-      name: 'Team Member 3',
-      role: 'Data Analyst',
-      image: '👨‍🔬',
-      description: 'Data Processing & Analysis'
+      name: 'Faseeh-ur-Rehman',
+      role: 'Researcher',
+      image: faseehImg,
+      isEmoji: false,
+      description: 'Research & Analysis'
     },
     {
-      name: 'Team Member 4',
+      name: 'Syed Zahab Ali',
       role: 'ML Engineer',
-      image: '👩‍🔬',
+      image: zahabImg,
+      isEmoji: false,
       description: 'Machine Learning & Forecasting'
     }
   ];
@@ -292,7 +302,7 @@ export default function Home() {
       {/* About Us / Team Section */}
       <section id="about" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center mb-8">
             <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
               Meet Our Team
             </h2>
@@ -302,11 +312,11 @@ export default function Home() {
           </div>
 
           {/* Instructor/Supervisor - Centered */}
-          <div className="max-w-2xl mx-auto mb-12">
+          <div className="max-w-2xl mx-auto mb-8">
             <div className="bg-gradient-to-br from-primary-50 to-secondary-50 p-8 rounded-2xl shadow-lg hover:shadow-2xl transition-all">
               <div className="flex flex-col items-center text-center">
-                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 flex items-center justify-center mb-6 shadow-lg">
-                  <span className="text-5xl">{teamMembers[0].image}</span>
+                <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 flex items-center justify-center mb-6 shadow-lg overflow-hidden">
+                  <img src={teamMembers[0].image} alt={teamMembers[0].name} className="w-full h-full object-cover" />
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-2">{teamMembers[0].name}</h3>
                 <div className="text-primary-600 font-semibold text-lg mb-3">{teamMembers[0].role}</div>
@@ -323,8 +333,8 @@ export default function Home() {
                 className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
               >
                 <div className="flex items-start gap-6">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 flex items-center justify-center flex-shrink-0 shadow-md">
-                    <span className="text-4xl">{member.image}</span>
+                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 flex items-center justify-center flex-shrink-0 shadow-md overflow-hidden">
+                    <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-1">
                     <h3 className="text-xl font-bold text-gray-900 mb-1">{member.name}</h3>

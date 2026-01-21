@@ -13,6 +13,7 @@ from routes.formulas import formulas_bp
 from routes.forecast import forecast_bp
 from routes.weather import weather_bp
 from routes.activities import activities_bp
+from routes.reports import reports_bp
 
 # Register all sub-blueprints
 api_bp.register_blueprint(auth_bp)
@@ -23,3 +24,4 @@ api_bp.register_blueprint(formulas_bp)
 api_bp.register_blueprint(forecast_bp)
 api_bp.register_blueprint(weather_bp)
 api_bp.register_blueprint(activities_bp)
+api_bp.register_blueprint(reports_bp)

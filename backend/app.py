@@ -37,7 +37,7 @@ def create_app():
          ], 
          supports_credentials=True,
          allow_headers=["Content-Type", "Authorization"],
-         expose_headers=["Content-Type", "Authorization"])
+         expose_headers=["Content-Type", "Authorization", "Content-Disposition"])
     
     db.init_app(app)
     migrate = Migrate(app, db)

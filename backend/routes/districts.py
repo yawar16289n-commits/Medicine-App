@@ -1,7 +1,8 @@
 """District management routes"""
 from flask import Blueprint, request, jsonify
+from datetime import date
 from database import db
-from models import District, MedicineSales, Formula, Medicine
+from models import District, MedicineSales, Formula, Medicine, MedicineForecast
 
 districts_bp = Blueprint('districts', __name__)
 
@@ -95,7 +96,10 @@ def get_district_formulas(district_id):
 
 @districts_bp.route('/districts/<int:district_id>/formulas/<int:formula_id>/medicines', methods=['GET'])
 def get_district_formula_medicines(district_id, formula_id):
-    """Get all medicines of a specific formula sold in this district"""
+    """Get all medicines of a specific formula sold in this district with forecast-based stock status"""
+    from datetime import timedelta
+    from sqlalchemy import func
+    
     district = District.query.get_or_404(district_id)
     formula = Formula.query.get_or_404(formula_id)
     
@@ -108,4 +112,28 @@ def get_district_formula_medicines(district_id, formula_id):
         Medicine.id.in_([mid[0] for mid in medicine_ids])
     ).all()
     
-    return jsonify([m.to_dict() for m in medicines]), 200
+    # Get 14-day forecast for these medicines in this district
+    today = date.today()
+    forecast_end = today + timedelta(days=14)
+    
+    forecast_query = db.session.query(
+        MedicineForecast.medicine_id,
+        func.sum(MedicineForecast.forecasted_quantity).label('total_forecast')
+    ).filter(
+        MedicineForecast.district_id == district_id,
+        MedicineForecast.forecast_date >= today,
+        MedicineForecast.forecast_date < forecast_end,
+        MedicineForecast.medicine_id.in_([m.id for m in medicines])
+    ).group_by(MedicineForecast.medicine_id).all()
+    
+    forecast_map = {row[0]: row[1] for row in forecast_query}
+    
+    result = []
+    for med in medicines:
+        med_dict = med.to_dict()
+        forecast_14_days = forecast_map.get(med.id, 0) or 0
+        med_dict['forecast14Days'] = forecast_14_days
+        med_dict['isFormulaLowStock'] = med.stock_level < forecast_14_days if forecast_14_days > 0 else False
+        result.append(med_dict)
+    
+    return jsonify(result), 200
