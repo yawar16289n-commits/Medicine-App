@@ -71,12 +71,27 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  // Permission helpers - centralized role checking
+  const permissions = {
+    // Can create, update, delete data (admin, data_operator)
+    canModifyData: user?.role === 'admin' || user?.role === 'data_operator',
+    // Can view and generate reports (admin, analyst)
+    canViewReports: user?.role === 'admin' || user?.role === 'analyst',
+    // Can manage users (admin only)
+    canManageUsers: user?.role === 'admin',
+    // Can view forecasts (all authenticated users)
+    canViewForecasts: !!user,
+    // Can upload data (admin, data_operator)
+    canUploadData: user?.role === 'admin' || user?.role === 'data_operator',
+  };
+
   const value = {
     isAuthenticated,
     user,
     loading,
     logout,
-    updateAuthState
+    updateAuthState,
+    permissions, // Expose permission helpers
   };
 
   return (

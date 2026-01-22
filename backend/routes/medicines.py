@@ -553,7 +553,8 @@ def create_sales_record(**kwargs):
                 'medicine': medicine.brand_name,
                 'district': district.name,
                 'date': sale_date.isoformat(),
-                'quantity': sale_quantity
+                'quantity': sale_quantity,
+                'upload_type': 'manual'
             }
         )
     
@@ -705,8 +706,8 @@ def upload_sales_data(**kwargs):
         else:
             return jsonify({'error': 'Unsupported file format. Use CSV or Excel.'}), 400
         
-        # Normalize column names
-        df.columns = [c.strip().lower().replace(' ', '_') for c in df.columns]
+        # Normalize column names - replace both spaces and slashes with underscores
+        df.columns = [c.strip().lower().replace(' ', '_').replace('/', '_') for c in df.columns]
         
         records_processed = 0
         errors = []
@@ -737,7 +738,8 @@ def upload_sales_data(**kwargs):
                     continue
                 
                 # Get medicine by name/ID and optional dosage
-                medicine_identifier = str(row.get('medicine_name/id', row.get('medicine_name', row.get('medicine_brand', '')))).strip()
+                # Column "Medicine Name/ID" becomes "medicine_name_id" after normalization
+                medicine_identifier = str(row.get('medicine_name_id', row.get('medicine_name', row.get('medicine_brand', '')))).strip()
                 dosage = str(row.get('dosage', '')).strip()
                 
                 if not medicine_identifier:
@@ -834,10 +836,12 @@ def upload_sales_data(**kwargs):
                 user_id=user.id,
                 user_name=user.username,
                 action_type='upload',
-                entity_type='sales_records',
+                entity_type='sales_data',
                 details={
+                    'file_name': file.filename,
                     'records_processed': records_processed,
-                    'total_errors': len(errors)
+                    'total_errors': len(errors),
+                    'upload_type': 'bulk'
                 }
             )
         
@@ -998,10 +1002,12 @@ def upload_stock_adjustments(**kwargs):
                 user_id=user.id,
                 user_name=user.username,
                 action_type='upload',
-                entity_type='stock_adjustments',
+                entity_type='stock_data',
                 details={
+                    'file_name': file.filename,
                     'records_processed': records_processed,
-                    'total_errors': len(errors)
+                    'total_errors': len(errors),
+                    'upload_type': 'bulk'
                 }
             )
         

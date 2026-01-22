@@ -46,10 +46,12 @@ export default function ActivitiesPage() {
 
   const formatEntityType = (entityType) => {
     const types = {
-      'sales_record': 'Sales Record',
-      'sales_records': 'Sales Records',
-      'stock_adjustment': 'Stock Adjustment',
-      'stock_adjustments': 'Stock Adjustments',
+      'sales_record': 'Sales Data',
+      'sales_records': 'Sales Data',
+      'sales_data': 'Sales Data',
+      'stock_adjustment': 'Stock Data',
+      'stock_adjustments': 'Stock Data',
+      'stock_data': 'Stock Data',
       'medicine': 'Medicine',
       'formula': 'Formula',
       'district': 'District',
@@ -97,9 +99,11 @@ export default function ActivitiesPage() {
           }
           break;
         case 'upload':
-          message = `Uploaded ${details.records_processed || 0} ${entityType.toLowerCase()}`;
+          const uploadType = details.upload_type ? ` (${details.upload_type})` : '';
+          const fileName = details.file_name ? ` from ${details.file_name}` : '';
+          message = `Uploaded ${details.records_processed || 0} records${fileName}${uploadType}`;
           if (details.total_errors > 0) {
-            message += ` (${details.total_errors} errors)`;
+            message += ` - ${details.total_errors} errors`;
           }
           break;
         default:

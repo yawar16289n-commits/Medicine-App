@@ -14,15 +14,20 @@ export default function SalesPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [salesUploadOpen, setSalesUploadOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState("");
   const { user } = useAuth();
 
   // Fetch all sales records
   const fetchSalesRecords = async () => {
     try {
-      const res = await medicinesAPI.getSalesRecords({ limit: 5000 }); // Get recent 5000 records
+      setLoading(true);
+      const res = await medicinesAPI.getSalesRecords(); // Get all records
       setSalesRecords(res.data);
     } catch (err) {
       console.error("Error fetching sales records:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,21 +56,25 @@ export default function SalesPage() {
       fetchSalesRecords();
       setEditing(false);
       setCurrentIndex(null);
-      alert(res.data.message || 'Sales record updated successfully');
+      setSuccessMessage(res.data.message || 'Sales record updated successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
       alert(err.response?.data?.error || 'Error updating sales record');
       console.error("Error updating sales record:", err);
     }
   };
 
-  // Delete medicine
+  // Delete sales record
   const deleteMedicine = async (id) => {
     try {
-      await medicinesAPI.delete(id);
+      await medicinesAPI.deleteSalesRecord(id);
       setSalesRecords(salesRecords.filter((m) => m.id !== id));
       setEditing(false);
+      setSuccessMessage('Sales record deleted successfully');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (err) {
-      console.error("Error deleting medicine:", err);
+      alert(err.response?.data?.error || 'Error deleting sales record');
+      console.error("Error deleting sales record:", err);
     }
   };
 
@@ -173,11 +182,18 @@ export default function SalesPage() {
 
         {/* ====== Sales Records Table ====== */}
         <div className="bg-white p-6 rounded-xl shadow-md mb-6">
-          <SalesTable
-            salesRecords={currentMedicines}
-            onDelete={deleteMedicine}
-            onEdit={startEdit}
-          />
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500 mb-4"></div>
+              <p className="text-gray-600">Loading sales records...</p>
+            </div>
+          ) : (
+            <SalesTable
+              salesRecords={currentMedicines}
+              onDelete={deleteMedicine}
+              onEdit={startEdit}
+            />
+          )}
         </div>
 
         {/* ====== Pagination ====== */}
@@ -256,6 +272,18 @@ export default function SalesPage() {
         onClose={() => setSalesUploadOpen(false)} 
         onSuccess={fetchSalesRecords} 
       />
+
+      {/* Success Notification */}
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 animate-fade-in">
+          <div className="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span className="font-medium">{successMessage}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

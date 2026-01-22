@@ -7,7 +7,7 @@ export const MEDICINES_PER_PAGE = 10;
 export const DEFAULT_PAGE = 1;
 
 // Forecast
-export const DEFAULT_FORECAST_PERIODS = 4;
+export const DEFAULT_FORECAST_PERIODS = 2;
 export const MIN_FORECAST_PERIODS = 1;
 export const MAX_FORECAST_PERIODS = 52;
 

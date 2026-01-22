@@ -60,9 +60,13 @@ export default function WeatherUpload({ isOpen, onClose, onSuccess }) {
     try {
       const response = await weatherAPI.uploadFile(formData);
       
+      const recordsAdded = response.data.records_added || 0;
+      const recordsUpdated = response.data.records_updated || 0;
+      const totalProcessed = recordsAdded + recordsUpdated;
+      
       setSuccess(
         response.data.message || 
-        `Successfully uploaded weather data: ${response.data.records_added} added, ${response.data.records_updated} updated`
+        `Successfully processed ${totalProcessed} records (${recordsAdded} added, ${recordsUpdated} updated)`
       );
       setFile(null);
       

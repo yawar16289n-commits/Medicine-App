@@ -88,6 +88,7 @@ export const medicinesAPI = {
   upload: (formData) => uploadFile('/api/medicines/upload', formData),
   getSalesRecords: (params) => api.get('/api/medicines/sales', { params }),
   createSalesRecord: (data) => api.post('/api/medicines/sales', data),
+  deleteSalesRecord: (id) => api.delete(`/api/medicines/sales/${id}`),
   uploadSales: (formData) => uploadFile('/api/medicines/sales/upload', formData),
   downloadSalesTemplate: () => api.get('/api/medicines/sales/template', { responseType: 'blob' }),
   uploadStockAdjustments: (formData) => uploadFile('/api/medicines/stock/upload', formData),

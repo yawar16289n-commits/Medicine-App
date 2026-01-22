@@ -31,9 +31,7 @@ def create_app():
              "http://localhost:5173",
              "http://127.0.0.1:5173",
              "http://localhost:5174",
-             "http://127.0.0.1:5174",
-             "http://localhost:3000",
-             "http://127.0.0.1:3000",
+             "http://127.0.0.1:5174"
          ], 
          supports_credentials=True,
          allow_headers=["Content-Type", "Authorization"],
@@ -90,6 +88,6 @@ def update_weather_with_context(app):
 if __name__ == '__main__':
     app = create_app()
     try:
-        app.run(debug=True, port=5001, use_reloader=False)  # Port 5001 since 5000 is used by forecast project
+        app.run(debug=True, port=5001, use_reloader=False)  
     finally:
         scheduler.shutdown()

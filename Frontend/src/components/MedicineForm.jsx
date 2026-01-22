@@ -73,13 +73,14 @@ function MedicineForm({ onAdd, onUpdate, editing, currentMedicine }) {
 
   useEffect(() => {
     if (editing && currentMedicine) {
+      // For sales records, the structure includes medicineName, dosageStrength, etc.
       setFormData({
         districtId: currentMedicine.districtId || "",
         formulaId: currentMedicine.formulaId || "",
-        medicineId: currentMedicine.brandName || "",
+        medicineId: currentMedicine.medicineName || "",  // Use medicineName for sales records
         dosageStrength: currentMedicine.dosageStrength || "",
-        saleQuantity: currentMedicine.saleQuantity || "",
-        date: currentMedicine.date ? new Date(currentMedicine.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        saleQuantity: currentMedicine.quantity || "",  // Sales records use 'quantity' not 'saleQuantity'
+        date: currentMedicine.date || new Date().toISOString().split('T')[0],
       });
     } else {
       setFormData({

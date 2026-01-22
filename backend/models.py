@@ -185,6 +185,7 @@ class MedicineSales(db.Model):
             "medicineId": self.medicine_id,
             "medicineName": self.medicine.brand_name if self.medicine else None,
             "dosageStrength": self.medicine.dosage_strength if self.medicine else None,
+            "formulaId": self.medicine.formula_id if self.medicine else None,
             "formulaName": self.medicine.formula.name if self.medicine and self.medicine.formula else None,
             "districtId": self.district_id,
             "districtName": self.district.name if self.district else None,
@@ -230,30 +231,24 @@ class MedicineForecast(db.Model):
 class DistrictMedicineLookup(db.Model):
     __tablename__ = 'district_medicine_lookup'
     
-    id = db.Column(db.Integer, primary_key=True)
-    district_id = db.Column(db.Integer, db.ForeignKey('district.id'), nullable=False, index=True)
-    medicine_id = db.Column(db.Integer, db.ForeignKey('medicine.id'), nullable=False, index=True)
-    formula_id = db.Column(db.Integer, db.ForeignKey('formula.id'), nullable=False, index=True)
-    created_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    district_id = db.Column(db.Integer, db.ForeignKey('district.id'), primary_key=True, nullable=False)
+    medicine_id = db.Column(db.Integer, db.ForeignKey('medicine.id'), primary_key=True, nullable=False)
+    formula_id = db.Column(db.Integer, db.ForeignKey('formula.id'), primary_key=True, nullable=False)
     
     # Relationships
     district = db.relationship('District', foreign_keys=[district_id])
     medicine = db.relationship('Medicine', foreign_keys=[medicine_id])
     formula = db.relationship('Formula', foreign_keys=[formula_id])
     
-    # Composite unique index
-    __table_args__ = (
-        db.Index('idx_district_medicine_formula', 'district_id', 'medicine_id', 'formula_id', unique=True),
-    )
+    # Composite primary key is automatically indexed
+    __table_args__ = ()
     
     def to_dict(self):
         return {
-            "id": self.id,
             "districtId": self.district_id,
             "districtName": self.district.name if self.district else None,
             "medicineId": self.medicine_id,
             "medicineName": self.medicine.brand_name if self.medicine else None,
             "formulaId": self.formula_id,
-            "formulaName": self.formula.name if self.formula else None,
-            "createdAt": self.created_at.isoformat() if self.created_at else None
+            "formulaName": self.formula.name if self.formula else None
         }

@@ -1,13 +1,15 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function SalesTable({ salesRecords, onDelete, onEdit }) {
   const { user } = useAuth();
   const canModify = user?.role === 'admin' || user?.role === 'data_operator';
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, record: null });
 
   return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full bg-white">
+    <>
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white">
         <thead className="bg-gradient-to-r from-primary-500 to-secondary-500 text-white">
           <tr>
             <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">
@@ -91,14 +93,7 @@ export default function SalesTable({ salesRecords, onDelete, onEdit }) {
                       ✏️
                     </button>
                     <button
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            `Are you sure you want to delete this sales record?`
-                          )
-                        )
-                          onDelete(record.id);
-                      }}
+                      onClick={() => setDeleteModal({ isOpen: true, record })}
                       className="text-red-600 hover:text-red-900 transition-colors"
                       title="Delete"
                     >
@@ -112,5 +107,53 @@ export default function SalesTable({ salesRecords, onDelete, onEdit }) {
         </tbody>
       </table>
     </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-4 rounded-t-2xl">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <span className="text-2xl">⚠️</span>
+                Confirm Delete
+              </h3>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-gray-700">
+                Are you sure you want to delete this sales record?
+              </p>
+              {deleteModal.record && (
+                <div className="bg-gray-50 p-4 rounded-lg space-y-2 text-sm">
+                  <p><strong>Medicine:</strong> {deleteModal.record.medicineName}</p>
+                  <p><strong>District:</strong> {deleteModal.record.districtName}</p>
+                  <p><strong>Date:</strong> {deleteModal.record.date}</p>
+                  <p><strong>Quantity:</strong> {deleteModal.record.quantity}</p>
+                </div>
+              )}
+              <p className="text-sm text-gray-600">
+                This action cannot be undone.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setDeleteModal({ isOpen: false, record: null })}
+                  className="flex-1 px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => {
+                    onDelete(deleteModal.record.id);
+                    setDeleteModal({ isOpen: false, record: null });
+                  }}
+                  className="flex-1 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
