@@ -16,14 +16,32 @@ export default function SalesPage() {
   const [salesUploadOpen, setSalesUploadOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [successMessage, setSuccessMessage] = useState("");
+  const [totalRecordsAvailable, setTotalRecordsAvailable] = useState(0);
+  const [currentBatchOffset, setCurrentBatchOffset] = useState(0);
+  const RECORDS_PER_BATCH = 1000; // Load 1000 records at a time
+  const PAGES_PER_CHUNK = 100; // Show 100 pages per chunk
   const { user } = useAuth();
 
-  // Fetch all sales records
-  const fetchSalesRecords = async () => {
+  // Fetch sales records with offset for lazy loading
+  const fetchSalesRecords = async (offset = 0, append = false) => {
     try {
       setLoading(true);
-      const res = await medicinesAPI.getSalesRecords(); // Get all records
-      setSalesRecords(res.data);
+      const res = await medicinesAPI.getSalesRecords({ 
+        limit: RECORDS_PER_BATCH,
+        offset: offset 
+      });
+      
+      if (append) {
+        // Append new records to existing ones
+        setSalesRecords(prev => [...prev, ...res.data]);
+      } else {
+        // Replace records (initial load)
+        setSalesRecords(res.data);
+      }
+      
+      // Estimate total records available
+      setTotalRecordsAvailable(res.data.length >= RECORDS_PER_BATCH ? offset + RECORDS_PER_BATCH + 1 : offset + res.data.length);
+      setCurrentBatchOffset(offset);
     } catch (err) {
       console.error("Error fetching sales records:", err);
     } finally {
@@ -102,7 +120,20 @@ export default function SalesPage() {
     };
   }, [filteredRecords, currentPage]);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    
+    // Check if we need to load next batch
+    // Load more when user reaches near the end of loaded records
+    const recordsNeeded = pageNumber * MEDICINES_PER_PAGE;
+    const recordsCurrentlyLoaded = salesRecords.length;
+    
+    // If we need more records and haven't reached the end
+    if (recordsNeeded > recordsCurrentlyLoaded - 50 && recordsCurrentlyLoaded % RECORDS_PER_BATCH === 0) {
+      const newOffset = recordsCurrentlyLoaded;
+      fetchSalesRecords(newOffset, true); // true = append to existing records
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -273,14 +304,19 @@ export default function SalesPage() {
         onSuccess={fetchSalesRecords} 
       />
 
-      {/* Success Notification */}
+      {/* Success Notification - Centered */}
       {successMessage && (
-        <div className="fixed top-4 right-4 z-50 animate-fade-in">
-          <div className="bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center gap-3">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span className="font-medium">{successMessage}</span>
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4">
+            <div className="flex flex-col items-center text-center">
+              <div className="bg-green-100 rounded-full p-4 mb-4">
+                <svg className="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+              <p className="text-gray-600">{successMessage}</p>
+            </div>
           </div>
         </div>
       )}

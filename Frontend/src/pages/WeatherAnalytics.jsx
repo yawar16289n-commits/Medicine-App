@@ -8,6 +8,7 @@ const TIME_RANGES = {
   "6M": { label: "6 Months", days: 180 },
   "1Y": { label: "1 Year", days: 365 },
   "14D": { label: "14 Days Forecast", days: 14 },
+  "28D": { label: "28 Days Forecast", days: 28 },
 };
 
 export default function WeatherAnalytics() {
@@ -21,7 +22,7 @@ export default function WeatherAnalytics() {
   const [customEndDate, setCustomEndDate] = useState("");
 
   useEffect(() => {
-    if (selectedRange === "14D") {
+    if (selectedRange === "14D" || selectedRange === "28D") {
       loadWeatherFromAPI();
       setDataSource("api");
     } else {
@@ -95,7 +96,7 @@ export default function WeatherAnalytics() {
     if (weatherData.length === 0) return [];
     
     // For forecast view, show only forecast data
-    if (selectedRange === "14D") {
+    if (selectedRange === "14D" || selectedRange === "28D") {
       return weatherData.filter(d => d.isForecast);
     }
     
@@ -699,7 +700,7 @@ export default function WeatherAnalytics() {
         onClose={() => setUploadModalOpen(false)}
         onSuccess={() => {
           // Reload data after successful upload
-          if (selectedRange === "14D") {
+          if (selectedRange === "14D" || selectedRange === "28D") {
             loadWeatherFromAPI();
           } else {
             loadWeatherFromAPI(); // Switch to API data to see uploaded records

@@ -407,6 +407,7 @@ def get_sales_records():
     Get all sales records with medicine and district details
     Optional query params:
     - limit: number of records to return (default: all)
+    - offset: number of records to skip (default: 0)
     - medicine_id: filter by medicine
     - district_id: filter by district
     - start_date: filter from date (YYYY-MM-DD)
@@ -434,6 +435,11 @@ def get_sales_records():
         
         # Order by date descending (most recent first)
         query = query.order_by(MedicineSales.date.desc())
+        
+        # Apply offset if provided
+        offset = request.args.get('offset')
+        if offset:
+            query = query.offset(int(offset))
         
         # Apply limit if provided
         limit = request.args.get('limit')

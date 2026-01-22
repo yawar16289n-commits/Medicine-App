@@ -64,10 +64,12 @@ export default function WeatherUpload({ isOpen, onClose, onSuccess }) {
       const recordsUpdated = response.data.records_updated || 0;
       const totalProcessed = recordsAdded + recordsUpdated;
       
-      setSuccess(
-        response.data.message || 
-        `Successfully processed ${totalProcessed} records (${recordsAdded} added, ${recordsUpdated} updated)`
-      );
+      let successMsg = response.data.message;
+      if (!successMsg || successMsg.includes('undefined')) {
+        successMsg = `Successfully processed ${totalProcessed} weather records (${recordsAdded} added, ${recordsUpdated} updated)`;
+      }
+      
+      setSuccess(successMsg);
       setFile(null);
       
       // Reset file input
